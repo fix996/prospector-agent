@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Negocio Web — Prospector</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#060d18;--bg2:#0a1525;--bg3:#0f1e35;--bg4:#162440;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.11);
+  --text:#dde6f0;--text2:#6b8299;--text3:#3d5270;
+  --accent:#3b82f6;--accent-dim:rgba(59,130,246,0.15);
+  --green:#10b981;--green-dim:rgba(16,185,129,0.12);
+  --yellow:#f59e0b;--yellow-dim:rgba(245,158,11,0.12);
+  --red:#ef4444;--red-dim:rgba(239,68,68,0.12);
+  --pink:#ec4899;--pink-dim:rgba(236,72,153,0.12);
+  --r:10px;--r2:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;font-size:14px}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.app{display:grid;grid-template-rows:52px 1fr;height:100vh}
+.body{display:grid;grid-template-columns:48px 1fr;height:calc(100vh - 52px);overflow:hidden}
+/* HEADER */
+header{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;gap:16px}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.logo-mark{width:28px;height:28px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white}
+.logo-text{font-size:14px;font-weight:600;letter-spacing:-.2px}
+.logo-text em{font-style:normal;color:var(--accent)}
+.hdr-r{display:flex;align-items:center;gap:8px}
+.backend-inp{background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:5px 10px;color:var(--text2);font-size:11px;font-family:'DM Mono',monospace;outline:none;width:200px}
+.backend-inp:focus{border-color:var(--accent);color:var(--text)}
+.status-pill{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;background:var(--bg3);border:1px solid var(--border2);font-size:11px;color:var(--text2);white-space:nowrap}
+.sdot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
+.sdot.off{background:var(--red)}
+.sdot.loading{background:var(--yellow);animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+/* SIDENAV */
+.sidenav{background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:4px}
+.nav-btn{width:34px;height:34px;border-radius:8px;border:none;background:transparent;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .15s;position:relative}
+.nav-btn:hover{background:var(--bg3);color:var(--text2)}
+.nav-btn.active{background:var(--accent-dim);color:var(--accent)}
+.nav-tip{position:absolute;left:42px;background:var(--bg4);border:1px solid var(--border2);border-radius:6px;padding:3px 8px;font-size:11px;color:var(--text);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;z-index:200}
+.nav-btn:hover .nav-tip{opacity:1}
+/* MAIN */
+.main{display:grid;grid-template-columns:290px 1fr;overflow:hidden}
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;padding:16px 13px;display:flex;flex-direction:column;gap:16px}
+.content{overflow:hidden;display:flex;flex-direction:column}
+.content-inner{flex:1;overflow-y:auto;padding:18px}
+.page{display:none}
+.page.active{display:block}
+/* LABELS */
+.lbl{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
+/* FORM */
+.fg{display:flex;flex-direction:column;gap:4px;margin-bottom:9px}
+.fg label{font-size:11px;color:var(--text2);font-weight:500}
+.fg input,.fg select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:8px 11px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .2s}
+.fg input:focus,.fg select:focus{border-color:var(--accent)}
+.fg input::placeholder{color:var(--text3)}
+.fg select option{background:var(--bg2)}
+.btn-primary{width:100%;padding:10px;background:var(--accent);border:none;border-radius:var(--r);color:white;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;margin-top:2px}
+.btn-primary:hover{background:#2563eb}
+.btn-primary:active{transform:scale(.98)}
+.btn-primary:disabled{opacity:.45;cursor:not-allowed;transform:none}
+/* PROGRESS */
+.prog-wrap{display:none;margin-top:9px}
+.prog-track{height:2px;background:var(--bg4);border-radius:1px;overflow:hidden}
+.prog-fill{height:100%;background:var(--accent);width:0%;transition:width .5s ease}
+.prog-txt{font-size:11px;color:var(--text3);margin-top:5px;text-align:center}
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.stat{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:9px 11px}
+.stat .n{font-size:22px;font-weight:600;line-height:1;font-family:'DM Mono',monospace}
+.stat .t{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-top:3px}
+.stat.c-blue .n{color:var(--accent)}
+.stat.c-red .n{color:var(--red)}
+.stat.c-yellow .n{color:var(--yellow)}
+.stat.c-green .n{color:var(--green)}
+.stat.c-pink .n{color:var(--pink)}
+/* PILLS */
+.pills{display:flex;gap:4px;flex-wrap:wrap}
+.pill{padding:4px 10px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--text2);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.pill:hover{border-color:var(--accent);color:var(--accent)}
+.pill.active{background:var(--accent);border-color:var(--accent);color:white}
+/* TABLE */
+.tbl-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);overflow:auto}
+table{width:100%;border-collapse:collapse}
+thead{background:var(--bg3)}
+th{padding:8px 12px;text-align:left;font-size:10px;font-weight:600;letter-spacing:.09em;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border)}
+td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;color:var(--text);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr.rh:hover td{background:rgba(255,255,255,.015)}
+tr.contactado td{opacity:.4}
+.td-name{font-weight:500}
+.td-meta{color:var(--text2);font-size:11px;margin-top:1px}
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.b-red{background:var(--red-dim);color:#fca5a5}.b-red::before{background:var(--red)}
+.b-yellow{background:var(--yellow-dim);color:#fcd34d}.b-yellow::before{background:var(--yellow)}
+.b-green{background:var(--green-dim);color:#6ee7b7}.b-green::before{background:var(--green)}
+.b-pink{background:var(--pink-dim);color:#f9a8d4}.b-pink::before{background:var(--pink)}
+/* BTNS */
+.btn-sm{padding:4px 10px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--text2);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap}
+.btn-sm:hover{border-color:var(--accent);color:var(--accent)}
+.btn-ico{width:26px;height:26px;border-radius:6px;border:1px solid transparent;background:transparent;color:var(--text3);font-size:13px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .15s}
+.btn-ico:hover{background:var(--bg3);color:var(--text)}
+.btn-ico.fav-on{color:var(--yellow)}
+.btn-ico.cont-on{color:var(--green)}
+/* EMPTY */
+.empty{text-align:center;padding:48px 20px;color:var(--text3)}
+.empty-ico{font-size:32px;margin-bottom:10px;opacity:.3}
+/* CH */
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.ch-title{font-size:16px;font-weight:600}
+.ch-sub{font-size:12px;color:var(--text2);margin-top:2px}
+/* PANEL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:100;display:none}
+.overlay.open{display:block}
+.panel{position:fixed;top:0;right:-500px;width:470px;height:100vh;background:var(--bg2);border-left:1px solid var(--border);z-index:101;transition:right .28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
+.panel.open{right:0}
+.panel-hdr{padding:16px 16px 12px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0}
+.panel-name{font-size:15px;font-weight:600;margin-bottom:3px}
+.panel-meta{font-size:12px;color:var(--text2)}
+.panel-close{background:none;border:1px solid var(--border2);border-radius:6px;color:var(--text2);cursor:pointer;padding:3px 9px;font-size:16px;line-height:1;flex-shrink:0}
+.panel-close:hover{color:var(--text)}
+.ptabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
+.ptab{flex:1;padding:10px 6px;background:none;border:none;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.ptab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.pbody{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.pbody.hidden{display:none}
+.msg-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px;font-size:13px;line-height:1.75;color:var(--text);white-space:pre-wrap;min-height:100px}
+.msg-box.dim{color:var(--text3);font-style:italic}
+.btn-copy{padding:7px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;transition:all .15s}
+.btn-copy:hover{border-color:var(--accent);color:var(--accent)}
+.btn-copy.ok{border-color:var(--green);color:var(--green)}
+.btn-gen{padding:7px 14px;background:var(--accent);border:none;border-radius:var(--r);color:white;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:background .15s}
+.btn-gen:hover{background:#2563eb}
+.btn-gen:disabled{opacity:.45;cursor:not-allowed}
+.btn-fav-p{width:100%;padding:8px;background:transparent;border:1px solid var(--yellow);border-radius:var(--r);color:var(--yellow);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;transition:all .15s}
+.btn-fav-p:hover,.btn-fav-p.on{background:var(--yellow-dim)}
+.btn-cont-p{width:100%;padding:8px;background:transparent;border:1px solid var(--green);border-radius:var(--r);color:var(--green);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;transition:all .15s}
+.btn-cont-p:hover,.btn-cont-p.on{background:var(--green-dim)}
+.reply-ta{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:10px 11px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;min-height:75px;outline:none}
+.reply-ta:focus{border-color:var(--accent)}
+.reply-ta::placeholder{color:var(--text3)}
+.row{display:flex;gap:7px}
+.info-grid{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:12px}
+.info-k{color:var(--text3);padding:2px 0}
+.info-v{color:var(--text2);font-family:'DM Mono',monospace;font-size:11px;word-break:break-all;padding:2px 0}
+.info-v a{color:var(--accent);text-decoration:none}
+.info-v a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="logo">
+    <div class="logo-mark">M</div>
+    <div class="logo-text">Mi Negocio Web <em>Prospector</em></div>
+  </div>
+  <div class="hdr-r">
+    <input class="backend-inp" id="backend-url" value="http://localhost:3000" placeholder="URL backend" />
+    <div class="status-pill">
+      <div class="sdot" id="sdot"></div>
+      <span id="slbl">conectando...</span>
+    </div>
+  </div>
+</header>
+
+<div class="body">
+<nav class="sidenav">
+  <button class="nav-btn active" onclick="goPage('buscar',this)">🔍<span class="nav-tip">Buscar</span></button>
+  <button class="nav-btn" onclick="goPage('favoritos',this)">⭐<span class="nav-tip">Favoritos</span></button>
+  <button class="nav-btn" onclick="goPage('historial',this)">📋<span class="nav-tip">Historial</span></button>
+  <button class="nav-btn" onclick="goPage('contactados',this)">✅<span class="nav-tip">Contactados</span></button>
+</nav>
+
+<div class="main">
+<aside class="sidebar">
+  <div>
+    <div class="lbl">Buscar clientes</div>
+    <div class="fg"><label>Rubro</label><input type="text" id="rubro" placeholder="ej: peluquería, ferretería..." /></div>
+    <div class="fg"><label>Zona</label><input type="text" id="zona" value="Luján, Buenos Aires" /></div>
+    <div class="fg"><label>Cantidad</label><select id="cantidad"><option value="10">10 negocios</option><option value="20" selected>20 negocios</option><option value="50">50 negocios</option></select></div>
+    <button class="btn-primary" id="btn-buscar" onclick="buscar()">Buscar clientes</button>
+    <div class="prog-wrap" id="prog-wrap">
+      <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+      <div class="prog-txt" id="prog-txt">Iniciando...</div>
+    </div>
+  </div>
+  <div>
+    <div class="lbl">Estadísticas</div>
+    <div class="stats-grid">
+      <div class="stat c-blue"><div class="n" id="s-total">0</div><div class="t">Total</div></div>
+      <div class="stat c-green"><div class="n" id="s-listos">0</div><div class="t">Para contactar</div></div>
+      <div class="stat c-red"><div class="n" id="s-sinweb">0</div><div class="t">Sin web</div></div>
+      <div class="stat c-yellow"><div class="n" id="s-vieja">0</div><div class="t">Web vieja</div></div>
+      <div class="stat c-pink"><div class="n" id="s-favs">0</div><div class="t">Favoritos</div></div>
+      <div class="stat c-green"><div class="n" id="s-cont">0</div><div class="t">Contactados</div></div>
+    </div>
+  </div>
+  <div>
+    <div class="lbl">Filtrar</div>
+    <div class="pills">
+      <button class="pill active" onclick="filtrar('todos',this)">Todos</button>
+      <button class="pill" onclick="filtrar('sin_web',this)">Sin web</button>
+      <button class="pill" onclick="filtrar('web_vieja',this)">Web vieja</button>
+      <button class="pill" onclick="filtrar('tiene_web',this)">Tienen web</button>
+    </div>
+  </div>
+</aside>
+
+<div class="content">
+<div class="content-inner">
+
+  <div class="page active" id="page-buscar">
+    <div class="ch"><div><div class="ch-title">Negocios encontrados</div><div class="ch-sub" id="ch-sub">Buscá un rubro para empezar</div></div></div>
+    <div class="tbl-wrap"><table><thead><tr><th>Negocio</th><th>Estado</th><th>Teléfono</th><th>Web/IG</th><th></th></tr></thead><tbody id="tbody-buscar"><tr><td colspan="5"><div class="empty"><div class="empty-ico">🔍</div><p>Ingresá un rubro y zona para empezar</p></div></td></tr></tbody></table></div>
+  </div>
+
+  <div class="page" id="page-favoritos">
+    <div class="ch"><div><div class="ch-title">⭐ Favoritos</div><div class="ch-sub">Negocios que marcaste para contactar</div></div></div>
+    <div class="tbl-wrap"><table><thead><tr><th>Negocio</th><th>Estado</th><th>Teléfono</th><th>Web/IG</th><th></th></tr></thead><tbody id="tbody-favoritos"><tr><td colspan="5"><div class="empty"><div class="empty-ico">⭐</div><p>Marcá negocios como favoritos para verlos acá</p></div></td></tr></tbody></table></div>
+  </div>
+
+  <div class="page" id="page-historial">
+    <div class="ch"><div><div class="ch-title">📋 Historial</div><div class="ch-sub">Todos los negocios que buscaste (persisten al recargar)</div></div></div>
+    <div class="tbl-wrap"><table><thead><tr><th>Negocio</th><th>Estado</th><th>Teléfono</th><th>Web/IG</th><th></th></tr></thead><tbody id="tbody-historial"><tr><td colspan="5"><div class="empty"><div class="empty-ico">📋</div><p>Acá aparecen todos los negocios que buscaste</p></div></td></tr></tbody></table></div>
+  </div>
+
+  <div class="page" id="page-contactados">
+    <div class="ch"><div><div class="ch-title">✅ Contactados</div><div class="ch-sub">Negocios a los que ya les escribiste</div></div></div>
+    <div class="tbl-wrap"><table><thead><tr><th>Negocio</th><th>Estado</th><th>Teléfono</th><th>Web/IG</th><th></th></tr></thead><tbody id="tbody-contactados"><tr><td colspan="5"><div class="empty"><div class="empty-ico">✅</div><p>Marcá negocios como contactados para verlos acá</p></div></td></tr></tbody></table></div>
+  </div>
+
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="overlay" id="overlay" onclick="cerrarPanel()"></div>
+<div class="panel" id="panel">
+  <div class="panel-hdr">
+    <div><div class="panel-name" id="p-nombre">—</div><div class="panel-meta" id="p-meta">—</div></div>
+    <button class="panel-close" onclick="cerrarPanel()">×</button>
+  </div>
+  <div class="ptabs">
+    <button class="ptab active" onclick="switchTab('info',this)">Info</button>
+    <button class="ptab" onclick="switchTab('mensaje',this)">Primer contacto</button>
+    <button class="ptab" onclick="switchTab('respuesta',this)">Responder</button>
+  </div>
+  <div class="pbody" id="ptab-info">
+    <div class="lbl">Datos del negocio</div>
+    <div class="info-grid" id="p-info-grid"></div>
+    <div class="row" style="margin-top:4px">
+      <button class="btn-fav-p" id="btn-fav-p" onclick="toggleFavPanel()">⭐ Agregar a favoritos</button>
+      <button class="btn-cont-p" id="btn-cont-p" onclick="toggleContPanel()">✅ Marcar contactado</button>
+    </div>
+  </div>
+  <div class="pbody hidden" id="ptab-mensaje">
+    <div class="lbl">Mensaje generado por IA</div>
+    <div class="msg-box dim" id="msg-inicial">Hacé click en "Generar" para crear el mensaje...</div>
+    <div class="row">
+      <button class="btn-copy" id="btn-copy-m" onclick="copiar('m')">Copiar</button>
+      <button class="btn-gen" onclick="generarMensaje()">Generar con IA</button>
+    </div>
+  </div>
+  <div class="pbody hidden" id="ptab-respuesta">
+    <div class="lbl">Lo que te respondió el cliente</div>
+    <textarea class="reply-ta" id="reply-input" placeholder="Pegá acá lo que te escribió el cliente..."></textarea>
+    <button class="btn-gen" onclick="generarRespuesta()">Generar respuesta</button>
+    <div class="lbl">Respuesta sugerida</div>
+    <div class="msg-box dim" id="msg-respuesta">La respuesta aparecerá acá...</div>
+    <div class="row"><button class="btn-copy" id="btn-copy-r" onclick="copiar('r')">Copiar</button></div>
+  </div>
+</div>
+
+<script>
+// ---------- PERSISTENCIA LOCAL ----------
+let leadsActuales = [];      // resultados de la última búsqueda
+let leadsFiltrados = [];     // filtrados en la pestaña buscar
+let historial = [];          // todos los leads acumulados (persistentes)
+
+// Claves de localStorage
+const STORAGE_HISTORIAL = 'prospector_historial';
+const STORAGE_FAVORITOS = 'prospector_favoritos';   // ids
+const STORAGE_CONTACTADOS = 'prospector_contactados'; // ids
+
+// Cargar datos guardados al iniciar
+function cargarPersistencia() {
+  const guardado = localStorage.getItem(STORAGE_HISTORIAL);
+  if (guardado) {
+    historial = JSON.parse(guardado);
+  } else {
+    historial = [];
+  }
+  // No cargamos leadsActuales desde historial, solo se actualizan al buscar.
+}
+function guardarHistorial() {
+  localStorage.setItem(STORAGE_HISTORIAL, JSON.stringify(historial));
+}
+
+function getFavoritosSet() {
+  const f = localStorage.getItem(STORAGE_FAVORITOS);
+  return new Set(f ? JSON.parse(f) : []);
+}
+function getContactadosSet() {
+  const c = localStorage.getItem(STORAGE_CONTACTADOS);
+  return new Set(c ? JSON.parse(c) : []);
+}
+function guardarFavoritos(set) {
+  localStorage.setItem(STORAGE_FAVORITOS, JSON.stringify([...set]));
+}
+function guardarContactados(set) {
+  localStorage.setItem(STORAGE_CONTACTADOS, JSON.stringify([...set]));
+}
+
+// Sincronizar los flags favorito/contactado en los objetos lead según los sets
+function sincronizarFlags(leadsArray) {
+  const favSet = getFavoritosSet();
+  const contSet = getContactadosSet();
+  for (let l of leadsArray) {
+    l.favorito = favSet.has(l.id);
+    l.contactado = contSet.has(l.id);
+  }
+}
+
+// Agregar nuevos leads al historial (evitando duplicados por id)
+function agregarAlHistorial(nuevosLeads) {
+  const existingIds = new Set(historial.map(l => l.id));
+  for (let lead of nuevosLeads) {
+    if (!existingIds.has(lead.id)) {
+      historial.push(lead);
+    } else {
+      // Actualizar datos del existente (por si cambió algo)
+      const idx = historial.findIndex(l => l.id === lead.id);
+      if (idx !== -1) historial[idx] = lead;
+    }
+  }
+  guardarHistorial();
+  sincronizarFlags(historial);
+}
+
+// Actualizar estadísticas en sidebar
+function actualizarStats(leads) {
+  const total = leads.length;
+  const sinWeb = leads.filter(l => l.estado === 'sin_web').length;
+  const webVieja = leads.filter(l => l.estado === 'web_vieja').length;
+  const listos = sinWeb + webVieja;
+  const favs = leads.filter(l => l.favorito).length;
+  const conts = leads.filter(l => l.contactado).length;
+  document.getElementById('s-total').textContent = total;
+  document.getElementById('s-sinweb').textContent = sinWeb;
+  document.getElementById('s-vieja').textContent = webVieja;
+  document.getElementById('s-listos').textContent = listos;
+  document.getElementById('s-favs').textContent = favs;
+  document.getElementById('s-cont').textContent = conts;
+}
+
+// Renderizar tabla genérica
+function renderTabla(tbodyId, lista) {
+  const tbody = document.getElementById(tbodyId);
+  if (!lista || lista.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="empty-ico">😕</div><p>No hay negocios acá todavía</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = lista.map(l => {
+    let badge = '';
+    if (l.estado === 'sin_web') badge = '<span class="badge b-red">Sin web</span>';
+    else if (l.estado === 'web_vieja') badge = '<span class="badge b-yellow">Web vieja</span>';
+    else badge = '<span class="badge b-green">Tiene web</span>';
+
+    let webLink = '—';
+    if (l.web_url) webLink = `<a href="${l.web_url}" target="_blank" style="color:var(--accent);font-size:11px">Web</a>`;
+
+    return `<tr class="rh ${l.contactado ? 'contactado' : ''}">
+      <td><div class="td-name">${l.nombre}</div><div class="td-meta">${l.zona} · ${l.rubro}</div></td>
+      <td>${badge}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text2)">${l.telefono || '—'}</td>
+      <td>${webLink}</td>
+      <td><div style="display:flex;gap:3px;align-items:center">
+        <button class="btn-ico ${l.favorito ? 'fav-on' : ''}" onclick="toggleFav('${l.id}', '${tbodyId}')" title="Favorito">⭐</button>
+        <button class="btn-ico ${l.contactado ? 'cont-on' : ''}" onclick="toggleCont('${l.id}', '${tbodyId}')" title="Contactado">✅</button>
+        <button class="btn-sm" onclick="abrirPanelById('${l.id}')">Mensaje</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+// Refrescar todas las vistas que dependen de los datos actuales
+function refrescarTodo() {
+  // Sincronizar flags en leadsActuales y leadsFiltrados
+  sincronizarFlags(leadsActuales);
+  sincronizarFlags(leadsFiltrados);
+  sincronizarFlags(historial);
+  
+  renderTabla('tbody-buscar', leadsFiltrados);
+  renderTabla('tbody-favoritos', historial.filter(l => l.favorito));
+  renderTabla('tbody-historial', historial);
+  renderTabla('tbody-contactados', historial.filter(l => l.contactado));
+  actualizarStats(leadsActuales);
+}
+
+// Alternar favorito
+async function toggleFav(id, tbodyId) {
+  let lead = leadsActuales.find(l => l.id === id) || historial.find(l => l.id === id);
+  if (!lead) return;
+  const favSet = getFavoritosSet();
+  if (favSet.has(id)) {
+    favSet.delete(id);
+    lead.favorito = false;
+  } else {
+    favSet.add(id);
+    lead.favorito = true;
+  }
+  guardarFavoritos(favSet);
+  refrescarTodo();
+}
+
+// Alternar contactado
+async function toggleCont(id, tbodyId) {
+  let lead = leadsActuales.find(l => l.id === id) || historial.find(l => l.id === id);
+  if (!lead) return;
+  const contSet = getContactadosSet();
+  if (contSet.has(id)) {
+    contSet.delete(id);
+    lead.contactado = false;
+  } else {
+    contSet.add(id);
+    lead.contactado = true;
+  }
+  guardarContactados(contSet);
+  refrescarTodo();
+}
+
+// BÚSQUEDA (igual que en dashboard.html)
+async function buscar() {
+  const rubro = document.getElementById('rubro').value.trim();
+  const zona = document.getElementById('zona').value.trim();
+  const cantidad = parseInt(document.getElementById('cantidad').value);
+  if (!rubro) { alert('Ingresá un rubro'); return; }
+  if (!zona) { alert('Ingresá una zona'); return; }
+  
+  const btn = document.getElementById('btn-buscar');
+  const pw = document.getElementById('prog-wrap');
+  const pf = document.getElementById('prog-fill');
+  const pt = document.getElementById('prog-txt');
+  btn.disabled = true; btn.textContent = 'Buscando...';
+  pw.style.display = 'block';
+  
+  const pasos = [[15, 'Buscando en Google Maps...'],[35, 'Buscando en la web...'],[60, 'Verificando páginas web...'],[80, 'Clasificando resultados...'],[95, 'Casi listo...']];
+  let paso = 0;
+  const interval = setInterval(() => {
+    if (paso < pasos.length) {
+      pf.style.width = pasos[paso][0] + '%';
+      pt.textContent = pasos[paso][1];
+      paso++;
+    }
+  }, 1200);
+  
+  try {
+    const res = await fetch(getBase() + '/api/buscar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rubro, zona, cantidad })
+    });
+    const data = await res.json();
+    clearInterval(interval);
+    pf.style.width = '100%';
+    pt.textContent = '¡Listo!';
+    setTimeout(() => { pw.style.display = 'none'; pf.style.width = '0%'; }, 800);
+
+    leadsActuales = Array.isArray(data) ? data : (data.leads || []);
+    // Asignar un ID único si no viene (por si acaso)
+    leadsActuales.forEach((l, idx) => { if (!l.id) l.id = btoa(unescape(encodeURIComponent(l.nombre + l.zona + idx))); });
+    leadsFiltrados = [...leadsActuales];
+    
+    // Sincronizar flags desde localStorage
+    sincronizarFlags(leadsActuales);
+    // Agregar al historial
+    agregarAlHistorial(leadsActuales);
+    
+    refrescarTodo();
+    document.getElementById('ch-sub').textContent = `${leadsActuales.length} negocios encontrados para "${rubro}" en ${zona}`;
+  } catch (e) {
+    clearInterval(interval);
+    pw.style.display = 'none';
+    alert('Error al conectar con el backend: ' + e.message);
+  }
+  btn.disabled = false; btn.textContent = 'Buscar clientes';
+}
+
+// Filtros en pestaña buscar
+function filtrar(estado, btn) {
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  if (estado === 'todos') leadsFiltrados = [...leadsActuales];
+  else leadsFiltrados = leadsActuales.filter(l => l.estado === estado);
+  renderTabla('tbody-buscar', leadsFiltrados);
+}
+
+// Panel lateral
+let leadSel = null;
+function abrirPanelById(id) {
+  leadSel = leadsActuales.find(l => l.id === id) || historial.find(l => l.id === id);
+  if (!leadSel) return;
+  document.getElementById('p-nombre').textContent = leadSel.nombre;
+  document.getElementById('p-meta').textContent = `${leadSel.rubro} · ${leadSel.zona}`;
+  document.getElementById('p-info-grid').innerHTML = `
+    <span class="info-k">Estado</span><span class="info-v">${leadSel.estado.replace('_',' ')}</span>
+    <span class="info-k">Teléfono</span><span class="info-v">${leadSel.telefono || 'No disponible'}</span>
+    <span class="info-k">Web</span><span class="info-v">${leadSel.web_url ? `<a href="${leadSel.web_url}" target="_blank">${leadSel.web_url}</a>` : 'Sin web'}</span>
+    <span class="info-k">Detalle</span><span class="info-v">${leadSel.detalle || '—'}</span>
+    <span class="info-k">Fuente</span><span class="info-v">${leadSel.fuente || '—'}</span>`;
+  const bf = document.getElementById('btn-fav-p'), bc = document.getElementById('btn-cont-p');
+  bf.textContent = leadSel.favorito ? '⭐ En favoritos' : '⭐ Agregar a favoritos';
+  bf.className = 'btn-fav-p' + (leadSel.favorito ? ' on' : '');
+  bc.textContent = leadSel.contactado ? '✅ Ya contactado' : '✅ Marcar contactado';
+  bc.className = 'btn-cont-p' + (leadSel.contactado ? ' on' : '');
+  document.getElementById('msg-inicial').textContent = 'Hacé click en "Generar" para crear el mensaje...';
+  document.getElementById('msg-inicial').className = 'msg-box dim';
+  document.getElementById('msg-respuesta').textContent = 'La respuesta aparecerá acá...';
+  document.getElementById('msg-respuesta').className = 'msg-box dim';
+  document.getElementById('reply-input').value = '';
+  switchTabById('info');
+  document.getElementById('panel').classList.add('open');
+  document.getElementById('overlay').classList.add('open');
+}
+function cerrarPanel() {
+  document.getElementById('panel').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+  leadSel = null;
+}
+function switchTab(tab, btn) {
+  document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  switchTabById(tab);
+}
+function switchTabById(tab) {
+  ['info','mensaje','respuesta'].forEach(t => {
+    document.getElementById('ptab-'+t).className = 'pbody' + (t === tab ? '' : ' hidden');
+  });
+}
+async function toggleFavPanel() {
+  if (!leadSel) return;
+  const favSet = getFavoritosSet();
+  if (favSet.has(leadSel.id)) favSet.delete(leadSel.id);
+  else favSet.add(leadSel.id);
+  guardarFavoritos(favSet);
+  leadSel.favorito = favSet.has(leadSel.id);
+  refrescarTodo();
+  const b = document.getElementById('btn-fav-p');
+  b.textContent = leadSel.favorito ? '⭐ En favoritos' : '⭐ Agregar a favoritos';
+  b.className = 'btn-fav-p' + (leadSel.favorito ? ' on' : '');
+}
+async function toggleContPanel() {
+  if (!leadSel) return;
+  const contSet = getContactadosSet();
+  if (contSet.has(leadSel.id)) contSet.delete(leadSel.id);
+  else contSet.add(leadSel.id);
+  guardarContactados(contSet);
+  leadSel.contactado = contSet.has(leadSel.id);
+  refrescarTodo();
+  const b = document.getElementById('btn-cont-p');
+  b.textContent = leadSel.contactado ? '✅ Ya contactado' : '✅ Marcar contactado';
+  b.className = 'btn-cont-p' + (leadSel.contactado ? ' on' : '');
+}
+
+// Generar mensaje (igual que dashboard.html)
+async function generarMensaje() {
+  if (!leadSel) return;
+  const box = document.getElementById('msg-inicial');
+  box.className = 'msg-box dim';
+  box.textContent = '⏳ Generando mensaje con IA...';
+  try {
+    const res = await fetch(getBase() + '/api/mensaje', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lead: leadSel, tipo: 'inicial' })
+    });
+    const data = await res.json();
+    box.className = 'msg-box';
+    box.textContent = data.mensaje || 'Error al generar el mensaje.';
+  } catch(e) {
+    box.className = 'msg-box dim';
+    box.textContent = 'Error al conectar con el backend. Verificá que esté corriendo.';
+  }
+}
+async function generarRespuesta() {
+  if (!leadSel) return;
+  const respCliente = document.getElementById('reply-input').value.trim();
+  if (!respCliente) { alert('Pegá la respuesta del cliente primero'); return; }
+  const box = document.getElementById('msg-respuesta');
+  box.className = 'msg-box dim';
+  box.textContent = '⏳ Generando respuesta...';
+  try {
+    const res = await fetch(getBase() + '/api/respuesta', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        lead: leadSel,
+        mensaje_enviado: document.getElementById('msg-inicial').textContent,
+        respuesta_cliente: respCliente
+      })
+    });
+    const data = await res.json();
+    box.className = 'msg-box';
+    box.textContent = data.respuesta || 'Error al generar la respuesta.';
+  } catch(e) {
+    box.className = 'msg-box dim';
+    box.textContent = 'Error al conectar con el backend.';
+  }
+}
+function copiar(tipo) {
+  const txt = tipo === 'm' ? document.getElementById('msg-inicial').textContent : document.getElementById('msg-respuesta').textContent;
+  navigator.clipboard.writeText(txt).then(() => {
+    const btn = document.getElementById('btn-copy-' + tipo);
+    btn.textContent = '✓ Copiado';
+    btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('ok'); }, 2000);
+  });
+}
+
+// Navegación entre páginas
+function goPage(pg, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + pg).classList.add('active');
+  btn.classList.add('active');
+  if (pg === 'historial') refrescarTodo();
+  if (pg === 'favoritos') refrescarTodo();
+  if (pg === 'contactados') refrescarTodo();
+}
+
+// Health check (sin leads_guardados)
+async function checkHealth() {
+  const dot = document.getElementById('sdot');
+  const label = document.getElementById('slbl');
+  dot.className = 'sdot loading';
+  label.textContent = 'conectando...';
+  try {
+    const res = await fetch(getBase() + '/api/health', { signal: AbortSignal.timeout(3000) });
+    if (res.ok) {
+      dot.className = 'sdot';
+      label.textContent = 'conectado';
+    } else throw new Error();
+  } catch {
+    dot.className = 'sdot off';
+    label.textContent = 'desconectado';
+  }
+}
+function getBase() {
+  return document.getElementById('backend-url').value.replace(/\/$/, '');
+}
+document.getElementById('backend-url').addEventListener('change', function() {
+  localStorage.setItem('backendUrl', this.value);
+  checkHealth();
+});
+const savedUrl = localStorage.getItem('backendUrl');
+if (savedUrl) document.getElementById('backend-url').value = savedUrl;
+
+// Inicialización
+cargarPersistencia();
+checkHealth();
+setInterval(checkHealth, 15000);
+document.getElementById('rubro').addEventListener('keydown', e => { if (e.key === 'Enter') buscar(); });
+document.getElementById('zona').addEventListener('keydown', e => { if (e.key === 'Enter') buscar(); });
+</script>
+</body>
+</html>
