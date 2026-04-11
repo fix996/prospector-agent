@@ -15,6 +15,7 @@
   --yellow:#f59e0b;--yellow-dim:rgba(245,158,11,0.12);
   --red:#ef4444;--red-dim:rgba(239,68,68,0.12);
   --pink:#ec4899;--pink-dim:rgba(236,72,153,0.12);
+  --purple:#a855f7;--purple-dim:rgba(168,85,247,0.12);
   --r:10px;--r2:14px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -23,6 +24,43 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 .app{display:grid;grid-template-rows:52px 1fr;height:100vh}
 .body{display:grid;grid-template-columns:48px 1fr;height:calc(100vh - 52px);overflow:hidden}
+
+/* RESPONSIVE - Móvil (< 768px) */
+@media (max-width: 768px) {
+  .sidenav { display: none !important; }
+  .main { grid-template-columns: 1fr !important; }
+  .sidebar {
+    display: none !important;
+    position: fixed;
+    top: 52px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    background: var(--bg2);
+    padding: 16px !important;
+  }
+  .sidebar.mobile-open { display: block !important; }
+  .mobile-search-btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: var(--accent);
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+  }
+  .tbl-wrap { overflow-x: auto; }
+  table { min-width: 700px; }
+  .panel { width: 100% !important; right: -100% !important; }
+  .btn-sm { padding: 8px 14px; font-size: 13px; }
+  .btn-ico { width: 36px; height: 36px; font-size: 16px; }
+}
+.mobile-search-btn { display: none; }
 /* HEADER */
 header{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;gap:16px}
 .logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
@@ -102,6 +140,7 @@ tr.contactado td{opacity:.4}
 .b-yellow{background:var(--yellow-dim);color:#fcd34d}.b-yellow::before{background:var(--yellow)}
 .b-green{background:var(--green-dim);color:#6ee7b7}.b-green::before{background:var(--green)}
 .b-pink{background:var(--pink-dim);color:#f9a8d4}.b-pink::before{background:var(--pink)}
+.b-purple{background:var(--purple-dim);color:#e9b8f5}.b-purple::before{background:var(--purple)}
 /* BTNS */
 .btn-sm{padding:4px 10px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--text2);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap}
 .btn-sm:hover{border-color:var(--accent);color:var(--accent)}
@@ -162,6 +201,7 @@ tr.contactado td{opacity:.4}
     <div class="logo-text">Mi Negocio Web <em>Prospector</em></div>
   </div>
   <div class="hdr-r">
+    <button class="mobile-search-btn" onclick="toggleMobileSidebar()">🔍</button>
     <input class="backend-inp" id="backend-url" value="http://localhost:3000" placeholder="URL backend" />
     <div class="status-pill">
       <div class="sdot" id="sdot"></div>
@@ -184,7 +224,7 @@ tr.contactado td{opacity:.4}
     <div class="lbl">Buscar clientes</div>
     <div class="fg"><label>Rubro</label><input type="text" id="rubro" placeholder="ej: peluquería, ferretería..." /></div>
     <div class="fg"><label>Zona</label><input type="text" id="zona" value="Luján, Buenos Aires" /></div>
-    <div class="fg"><label>Cantidad</label><select id="cantidad"><option value="10">10 negocios</option><option value="20" selected>20 negocios</option><option value="50">50 negocios</option></select></div>
+    <div class="fg"><label>Cantidad</label><input type="number" id="cantidad" value="20" min="1" max="100" placeholder="ej: 30" /></div>
     <button class="btn-primary" id="btn-buscar" onclick="buscar()">Buscar clientes</button>
     <div class="prog-wrap" id="prog-wrap">
       <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
@@ -218,22 +258,22 @@ tr.contactado td{opacity:.4}
 
   <div class="page active" id="page-buscar">
     <div class="ch"><div><div class="ch-title">Negocios encontrados</div><div class="ch-sub" id="ch-sub">Buscá un rubro para empezar</div></div></div>
-    <div class="tbl-wrap"><table><thead><tr><th>Negocio</th><th>Estado</th><th>Teléfono</th><th>Web/IG</th><th></th></tr></thead><tbody id="tbody-buscar"><tr><td colspan="5"><div class="empty"><div class="empty-ico">🔍</div><p>Ingresá un rubro y zona para empezar</p></div></td></tr></tbody></table></div>
+    <div class="tbl-wrap"><table><thead><tr><th>Negocio</th><th>Estado</th><th>Teléfono</th><th>Web</th><th>Redes</th><th></th></tr></thead><tbody id="tbody-buscar"><tr><td colspan="6"><div class="empty"><div class="empty-ico">🔍</div><p>Ingresá un rubro y zona para empezar</p></div></td></tr></tbody></table></div>
   </div>
 
   <div class="page" id="page-favoritos">
     <div class="ch"><div><div class="ch-title">⭐ Favoritos</div><div class="ch-sub">Negocios que marcaste para contactar</div></div></div>
-    <div class="tbl-wrap"><table><thead><tr><th>Negocio</th><th>Estado</th><th>Teléfono</th><th>Web/IG</th><th></th></tr></thead><tbody id="tbody-favoritos"><tr><td colspan="5"><div class="empty"><div class="empty-ico">⭐</div><p>Marcá negocios como favoritos para verlos acá</p></div></td></tr></tbody></table></div>
+    <div class="tbl-wrap"><table><thead><tr><th>Negocio</th><th>Estado</th><th>Teléfono</th><th>Web</th><th>Redes</th><th></th></tr></thead><tbody id="tbody-favoritos"><tr><td colspan="6"><div class="empty"><div class="empty-ico">⭐</div><p>Marcá negocios como favoritos para verlos acá</p></div></td></tr></tbody></table></div>
   </div>
 
   <div class="page" id="page-historial">
     <div class="ch"><div><div class="ch-title">📋 Historial</div><div class="ch-sub">Todos los negocios que buscaste (persisten al recargar)</div></div></div>
-    <div class="tbl-wrap"><table><thead><tr><th>Negocio</th><th>Estado</th><th>Teléfono</th><th>Web/IG</th><th></th></tr></thead><tbody id="tbody-historial"><tr><td colspan="5"><div class="empty"><div class="empty-ico">📋</div><p>Acá aparecen todos los negocios que buscaste</p></div></td></tr></tbody></table></div>
+    <div class="tbl-wrap"><table><thead><tr><th>Negocio</th><th>Estado</th><th>Teléfono</th><th>Web</th><th>Redes</th><th></th></tr></thead><tbody id="tbody-historial"><tr><td colspan="6"><div class="empty"><div class="empty-ico">📋</div><p>Acá aparecen todos los negocios que buscaste</p></div></td></tr></tbody></table></div>
   </div>
 
   <div class="page" id="page-contactados">
     <div class="ch"><div><div class="ch-title">✅ Contactados</div><div class="ch-sub">Negocios a los que ya les escribiste</div></div></div>
-    <div class="tbl-wrap"><table><thead><tr><th>Negocio</th><th>Estado</th><th>Teléfono</th><th>Web/IG</th><th></th></tr></thead><tbody id="tbody-contactados"><tr><td colspan="5"><div class="empty"><div class="empty-ico">✅</div><p>Marcá negocios como contactados para verlos acá</p></div></td></tr></tbody></table></div>
+    <div class="tbl-wrap"><table><thead><tr><th>Negocio</th><th>Estado</th><th>Teléfono</th><th>Web</th><th>Redes</th><th></th></tr></thead><tbody id="tbody-contactados"><tr><td colspan="6"><div class="empty"><div class="empty-ico">✅</div><p>Marcá negocios como contactados para verlos acá</p></div></td></tr></tbody></table></div>
   </div>
 
 </div>
@@ -252,6 +292,7 @@ tr.contactado td{opacity:.4}
     <button class="ptab active" onclick="switchTab('info',this)">Info</button>
     <button class="ptab" onclick="switchTab('mensaje',this)">Primer contacto</button>
     <button class="ptab" onclick="switchTab('respuesta',this)">Responder</button>
+    <button class="ptab" onclick="switchTab('guiar-ia',this)">Guiar IA</button>
   </div>
   <div class="pbody" id="ptab-info">
     <div class="lbl">Datos del negocio</div>
@@ -276,6 +317,15 @@ tr.contactado td{opacity:.4}
     <div class="lbl">Respuesta sugerida</div>
     <div class="msg-box dim" id="msg-respuesta">La respuesta aparecerá acá...</div>
     <div class="row"><button class="btn-copy" id="btn-copy-r" onclick="copiar('r')">Copiar</button></div>
+  </div>
+  <div class="pbody hidden" id="ptab-guiar-ia">
+    <div class="lbl">Configurar IA para este negocio</div>
+    <div class="fg">
+      <label>Instrucciones específicas para este chat</label>
+      <textarea id="ia-instrucciones" class="reply-ta" style="min-height:150px;" placeholder="ej: sé más directo, no menciones precios todavía, el cliente es mayor y formal, enfatizá la demo gratis..."></textarea>
+    </div>
+    <button class="btn-gen" onclick="guardarInstruccionesIA()" style="width:100%">Guardar instrucciones para este negocio</button>
+    <div style="margin-top:10px;font-size:11px;color:var(--text3)">Estas instrucciones se guardan SOLO para este negocio. Cada negocio tiene sus propias instrucciones.</div>
   </div>
 </div>
 
@@ -365,23 +415,40 @@ function actualizarStats(leads) {
 function renderTabla(tbodyId, lista) {
   const tbody = document.getElementById(tbodyId);
   if (!lista || lista.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="empty-ico">😕</div><p>No hay negocios acá todavía</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty"><div class="empty-ico">😕</div><p>No hay negocios acá todavía</p></div></td></tr>`;
     return;
   }
   tbody.innerHTML = lista.map(l => {
     let badge = '';
-    if (l.estado === 'sin_web') badge = '<span class="badge b-red">Sin web</span>';
-    else if (l.estado === 'web_vieja') badge = '<span class="badge b-yellow">Web vieja</span>';
-    else badge = '<span class="badge b-green">Tiene web</span>';
+    if (l.solo_instagram) {
+      badge = '<span class="badge b-purple">Solo Instagram</span>';
+    } else if (l.estado === 'sin_web') {
+      badge = '<span class="badge b-red">Sin web</span>';
+    } else if (l.estado === 'web_vieja') {
+      badge = '<span class="badge b-yellow">Web vieja</span>';
+    } else {
+      badge = '<span class="badge b-green">Tiene web</span>';
+    }
 
     let webLink = '—';
     if (l.web_url) webLink = `<a href="${l.web_url}" target="_blank" style="color:var(--accent);font-size:11px">Web</a>`;
+
+    // Columna Redes: mostrar Instagram y/o Facebook
+    let redesLinks = [];
+    if (l.instagram_url) {
+      redesLinks.push(`<a href="${l.instagram_url}" target="_blank" style="color:#ec4899;font-size:11px">Instagram</a>`);
+    }
+    if (l.facebook_url) {
+      redesLinks.push(`<a href="${l.facebook_url}" target="_blank" style="color:#3b82f6;font-size:11px">Facebook</a>`);
+    }
+    let redesHtml = redesLinks.length > 0 ? redesLinks.join(' · ') : '—';
 
     return `<tr class="rh ${l.contactado ? 'contactado' : ''}">
       <td><div class="td-name">${l.nombre}</div><div class="td-meta">${l.zona} · ${l.rubro}</div></td>
       <td>${badge}</td>
       <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text2)">${l.telefono || '—'}</td>
       <td>${webLink}</td>
+      <td>${redesHtml}</td>
       <td><div style="display:flex;gap:3px;align-items:center">
         <button class="btn-ico ${l.favorito ? 'fav-on' : ''}" onclick="toggleFav('${l.id}', '${tbodyId}')" title="Favorito">⭐</button>
         <button class="btn-ico ${l.contactado ? 'cont-on' : ''}" onclick="toggleCont('${l.id}', '${tbodyId}')" title="Contactado">✅</button>
@@ -510,10 +577,26 @@ function abrirPanelById(id) {
   if (!leadSel) return;
   document.getElementById('p-nombre').textContent = leadSel.nombre;
   document.getElementById('p-meta').textContent = `${leadSel.rubro} · ${leadSel.zona}`;
+
+  // Cargar instrucciones de IA guardadas para este lead específico
+  cargarInstruccionesIA();
+
+  // Construir links de redes
+  let redesHtml = '—';
+  const redesLinks = [];
+  if (leadSel.instagram_url) {
+    redesLinks.push(`<a href="${leadSel.instagram_url}" target="_blank" style="color:#ec4899">Instagram</a>`);
+  }
+  if (leadSel.facebook_url) {
+    redesLinks.push(`<a href="${leadSel.facebook_url}" target="_blank" style="color:#3b82f6">Facebook</a>`);
+  }
+  if (redesLinks.length > 0) redesHtml = redesLinks.join(' · ');
+
   document.getElementById('p-info-grid').innerHTML = `
-    <span class="info-k">Estado</span><span class="info-v">${leadSel.estado.replace('_',' ')}</span>
+    <span class="info-k">Estado</span><span class="info-v">${leadSel.solo_instagram ? '<span class="badge b-purple" style="font-size:10px">Solo Instagram</span>' : leadSel.estado.replace('_',' ')}</span>
     <span class="info-k">Teléfono</span><span class="info-v">${leadSel.telefono || 'No disponible'}</span>
-    <span class="info-k">Web</span><span class="info-v">${leadSel.web_url ? `<a href="${leadSel.web_url}" target="_blank">${leadSel.web_url}</a>` : 'Sin web'}</span>
+    <span class="info-k">Web</span><span class="info-v">${leadSel.web_url ? `<a href="${leadSel.web_url}" target="_blank" style="color:var(--accent)">${leadSel.web_url}</a>` : '<span style="color:var(--red)">Sin web</span>'}</span>
+    <span class="info-k">Redes</span><span class="info-v">${redesHtml}</span>
     <span class="info-k">Detalle</span><span class="info-v">${leadSel.detalle || '—'}</span>
     <span class="info-k">Fuente</span><span class="info-v">${leadSel.fuente || '—'}</span>`;
   const bf = document.getElementById('btn-fav-p'), bc = document.getElementById('btn-cont-p');
@@ -541,7 +624,7 @@ function switchTab(tab, btn) {
   switchTabById(tab);
 }
 function switchTabById(tab) {
-  ['info','mensaje','respuesta'].forEach(t => {
+  ['info','mensaje','respuesta','guiar-ia'].forEach(t => {
     document.getElementById('ptab-'+t).className = 'pbody' + (t === tab ? '' : ' hidden');
   });
 }
@@ -570,6 +653,11 @@ async function toggleContPanel() {
   b.className = 'btn-cont-p' + (leadSel.contactado ? ' on' : '');
 }
 
+// Obtener instrucciones adicionales de IA
+function getInstruccionesIA() {
+  return document.getElementById('ia-instrucciones').value.trim();
+}
+
 // Generar mensaje (igual que dashboard.html)
 async function generarMensaje() {
   if (!leadSel) return;
@@ -580,7 +668,11 @@ async function generarMensaje() {
     const res = await fetch(getBase() + '/api/mensaje', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ lead: leadSel, tipo: 'inicial' })
+      body: JSON.stringify({
+        lead: leadSel,
+        tipo: 'inicial',
+        instrucciones_adicionales: getInstruccionesIA()
+      })
     });
     const data = await res.json();
     box.className = 'msg-box';
@@ -604,7 +696,8 @@ async function generarRespuesta() {
       body: JSON.stringify({
         lead: leadSel,
         mensaje_enviado: document.getElementById('msg-inicial').textContent,
-        respuesta_cliente: respCliente
+        respuesta_cliente: respCliente,
+        instrucciones_adicionales: getInstruccionesIA()
       })
     });
     const data = await res.json();
@@ -636,6 +729,51 @@ function goPage(pg, btn) {
   if (pg === 'contactados') refrescarTodo();
 }
 
+// Toggle sidebar en móvil
+function toggleMobileSidebar() {
+  document.querySelector('.sidebar').classList.toggle('mobile-open');
+}
+
+// Guardar instrucciones de IA para el lead actual (por-chat)
+function guardarInstruccionesIA() {
+  if (!leadSel) {
+    alert('Primero seleccioná un negocio');
+    return;
+  }
+  const instrucciones = document.getElementById('ia-instrucciones').value.trim();
+
+  // Guardar instrucciones específicas para este lead
+  const key = 'ia_instrucciones_' + leadSel.id;
+  localStorage.setItem(key, instrucciones);
+
+  // También guardar en el objeto lead para referencia
+  leadSel.ia_instrucciones = instrucciones;
+
+  const btn = document.querySelector('#ptab-guiar-ia .btn-gen');
+  btn.textContent = '✓ Guardado para este negocio';
+  btn.style.background = 'var(--green)';
+  setTimeout(() => {
+    btn.textContent = 'Guardar instrucciones';
+    btn.style.background = '';
+  }, 2000);
+}
+
+// Cargar instrucciones de IA para el lead actual (por-chat)
+function cargarInstruccionesIA() {
+  if (!leadSel) {
+    document.getElementById('ia-instrucciones').value = '';
+    return;
+  }
+  // Intentar cargar instrucciones específicas para este lead
+  const key = 'ia_instrucciones_' + leadSel.id;
+  const guardadas = localStorage.getItem(key);
+  if (guardadas) {
+    document.getElementById('ia-instrucciones').value = guardadas;
+  } else {
+    document.getElementById('ia-instrucciones').value = '';
+  }
+}
+
 // Health check (sin leads_guardados)
 async function checkHealth() {
   const dot = document.getElementById('sdot');
@@ -665,6 +803,7 @@ if (savedUrl) document.getElementById('backend-url').value = savedUrl;
 
 // Inicialización
 cargarPersistencia();
+cargarInstruccionesIA();
 checkHealth();
 setInterval(checkHealth, 15000);
 document.getElementById('rubro').addEventListener('keydown', e => { if (e.key === 'Enter') buscar(); });
