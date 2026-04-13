@@ -31,11 +31,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 @media (max-width: 768px) {
   body { font-size: 13px; }
 
-  /* Ocultar sidenav lateral */
-  .sidenav { display: none !important; }
-
-  /* Main ocupa todo el ancho */
+  /* Layout: quitar sidenav y sidebar del flujo */
+  .body { grid-template-columns: 1fr !important; }
+  .sidenav { display: none !important; position: fixed !important; }
   .main { grid-template-columns: 1fr !important; }
+  .sidebar { display: none !important; position: fixed !important; }
 
   /* Header simplificado - ocultar URL y status */
   .hdr-r .backend-inp,
@@ -72,20 +72,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
   }
 
   /* Sidebar móvil - 100% ancho */
-  .sidebar {
-    display: none !important;
-    position: fixed;
-    top: 52px;
-    left: 0;
+  .sidebar.mobile-open {
+    display: block !important;
     width: 100% !important;
-    right: 0;
-    bottom: 0;
+    height: calc(100vh - 52px) !important;
     z-index: 50;
     background: var(--bg2);
     padding: 20px !important;
     overflow-y: auto;
   }
-  .sidebar.mobile-open { display: block !important; }
 
   /* Overlay para sidebar */
   .sidebar-overlay {
@@ -99,6 +94,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
     display: none;
   }
   .sidebar-overlay.open { display: block; }
+
+  /* Contenido principal - ancho completo */
+  .content { width: 100%; }
+  .content-inner {
+    width: 100%;
+    padding: 18px !important;
+    padding-bottom: 80px !important;
+    overflow-y: auto;
+  }
 
   /* Botones de touch más grandes */
   .btn-sm { padding: 10px 16px; font-size: 13px; min-height: 44px; }
@@ -125,6 +129,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
     border-radius: 12px;
     margin-bottom: 12px;
     padding: 14px;
+    width: 100%;
   }
   tr.rh:last-child { margin-bottom: 0; }
   tr.rh.contactado td { opacity: 0.4; }
@@ -134,6 +139,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
     display: flex;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
   }
   td:first-child {
     flex-direction: column;
@@ -231,9 +237,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
   .bottom-nav-btn:hover { color: var(--text2); }
   .bottom-nav-btn.active { color: var(--accent); }
   .bottom-nav-btn.active .icon { transform: scale(1.1); }
-
-  /* Padding para que el contenido no quede tapado */
-  .content-inner { padding-bottom: 80px !important; }
 }
 
 /* Desktop - ocultar elementos móviles */
