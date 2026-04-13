@@ -140,20 +140,6 @@ function hasValidOnlinePresence(business) {
   }
   return false;
 }
-  }
-
-  // Patrones de URLs que parecen directorios (muchos negocios en una sola URL)
-  const directoryPatterns = [
-    /negocios/i, /shops/i, /stores/i, /empresas/i, /comercios/i,
-    /resultados/i, /search/i, /q=/i  // Parámetros de búsqueda
-  ];
-
-  for (const pattern of directoryPatterns) {
-    if (pattern.test(url)) return true;
-  }
-
-  return false;
-}
 
 // Extract Instagram URL from place data
 function extractInstagramUrl(place) {
