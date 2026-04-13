@@ -368,9 +368,10 @@ REGLAS:
 - Si solo tiene Instagram: explicá que en Google no aparecen y se pierden clientes
 - Si tiene web vieja: decí que la web actual puede estar espantando clientes
 - Si tiene web buena: felicitalo brevemente y ofrecé mejorar el SEO o velocidad
+- Usá SIEMPRE la zona específica del lead, nunca digas "por acá" o "por la zona"
 
 EJEMPLO BUENO:
-'Hola! Andaba buscando [rubro] en [zona] y encontré tu Instagram. Vi que no aparecés en Google cuando alguien busca [rubro] por acá, y eso hace que pierdas clientes que buscan por ahí. Si querés te muestro gratis cómo quedaría tu web, sin compromiso.'` + (instrucciones_adicionales ? `\n\nINSTRUCCIONES ADICIONALES (PRIORIDAD MÁXIMA):\n${instrucciones_adicionales}` : '');
+'Hola! Andaba buscando [rubro] en [zona] y encontré tu Instagram. Vi que no aparecés en Google cuando alguien busca [rubro] en [zona], y eso hace que pierdas clientes que buscan por ahí. Si querés te muestro gratis cómo quedaría tu web, sin compromiso.'` + (instrucciones_adicionales ? `\n\nINSTRUCCIONES ADICIONALES (PRIORIDAD MÁXIMA):\n${instrucciones_adicionales}` : '');
 
     const userPrompt = `Escribí un mensaje de prospección para:
 
