@@ -27,8 +27,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 
 /* RESPONSIVE - Móvil (< 768px) */
 @media (max-width: 768px) {
+  body { font-size: 13px; }
   .sidenav { display: none !important; }
   .main { grid-template-columns: 1fr !important; }
+
+  /* Sidebar como panel deslizable */
   .sidebar {
     display: none !important;
     position: fixed;
@@ -39,8 +42,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
     z-index: 50;
     background: var(--bg2);
     padding: 16px !important;
+    overflow-y: auto;
   }
   .sidebar.mobile-open { display: block !important; }
+
+  /* Botón móvil */
   .mobile-search-btn {
     display: flex !important;
     align-items: center;
@@ -54,13 +60,83 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
     font-size: 18px;
     cursor: pointer;
   }
-  .tbl-wrap { overflow-x: auto; }
-  table { min-width: 700px; }
+
+  /* Header responsive */
+  .logo-text { font-size: 13px; }
+  .backend-inp { width: 140px; font-size: 10px; }
+  .status-pill { padding: 3px 8px; font-size: 10px; }
+
+  /* Tablas con scroll horizontal */
+  .tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { min-width: 650px; }
+
+  /* Panel lateral a pantalla completa */
   .panel { width: 100% !important; right: -100% !important; }
-  .btn-sm { padding: 8px 14px; font-size: 13px; }
-  .btn-ico { width: 36px; height: 36px; font-size: 16px; }
+  .panel-hdr { padding: 14px; }
+  .panel-name { font-size: 14px; }
+  .pbody { padding: 14px; }
+
+  /* Botones más grandes para touch */
+  .btn-sm { padding: 10px 16px; font-size: 13px; min-height: 44px; }
+  .btn-ico { width: 40px; height: 40px; font-size: 17px; min-height: 40px; }
+  .btn-primary { padding: 12px; font-size: 14px; min-height: 48px; }
+  .pill { padding: 6px 12px; font-size: 12px; min-height: 36px; }
+  .ptab { padding: 12px 6px; font-size: 13px; }
+
+  /* Formularios */
+  .fg input, .fg select { font-size: 14px; padding: 10px 12px; min-height: 44px; }
+  .fg label { font-size: 12px; }
+
+  /* Stats en 1 columna en móviles muy chicos */
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat { padding: 12px; }
+  .stat .n { font-size: 20px; }
+
+  /* Tabs de navegación inferiores */
+  .ptabs { position: sticky; top: 0; background: var(--bg2); z-index: 10; }
+}
+
+/* Móviles muy chicos (< 400px) */
+@media (max-width: 400px) {
+  .logo-text { display: none; }
+  .backend-inp { width: 100px; }
+  .stats-grid { grid-template-columns: 1fr; }
+  .hdr-r { gap: 4px; }
+}
+
+/* Ajustes para tablets (768px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .sidebar { min-width: 240px; }
+  .stats-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* Ajustes de impresión */
+@media print {
+  .sidenav, .sidebar, .mobile-menu-btn, .mobile-search-btn { display: none !important; }
+  .main { grid-template-columns: 1fr !important; }
+  .panel { display: none !important; }
+  body { height: auto; overflow: visible !important; }
+  .app { grid-template-rows: auto !important; }
 }
 .mobile-search-btn { display: none; }
+.mobile-menu-btn { display: none; }
+
+/* Overlay para sidebar móvil */
+.sidebar-overlay {
+  position: fixed;
+  top: 52px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 49;
+  display: none;
+}
+.sidebar-overlay.open { display: block; }
+
+@media (max-width: 768px) {
+  .mobile-menu-btn { display: flex !important; }
+}
 /* HEADER */
 header{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;gap:16px}
 .logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
@@ -197,11 +273,12 @@ tr.contactado td{opacity:.4}
 <div class="app">
 <header>
   <div class="logo">
+    <button class="mobile-menu-btn" onclick="toggleMobileSidebar()" style="width:38px;height:38px;font-size:18px;background:var(--accent);border:none;border-radius:8px;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-right:8px">☰</button>
     <div class="logo-mark">M</div>
     <div class="logo-text">Mi Negocio Web <em>Prospector</em></div>
   </div>
   <div class="hdr-r">
-    <button class="mobile-search-btn" onclick="toggleMobileSidebar()">🔍</button>
+    <button class="mobile-search-btn" onclick="toggleMobileSidebar()" style="width:38px;height:38px;font-size:16px;background:var(--bg3);border:1px solid var(--border2)">🔍</button>
     <input class="backend-inp" id="backend-url" value="http://localhost:3000" placeholder="URL backend" />
     <div class="status-pill">
       <div class="sdot" id="sdot"></div>
@@ -220,6 +297,10 @@ tr.contactado td{opacity:.4}
 
 <div class="main">
 <aside class="sidebar">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <div class="lbl" style="margin:0">Menú</div>
+    <button class="panel-close" onclick="toggleMobileSidebar()" style="position:static;padding:6px 10px">✕</button>
+  </div>
   <div>
     <div class="lbl">Buscar clientes</div>
     <div class="fg"><label>Rubro</label><input type="text" id="rubro" placeholder="ej: peluquería, ferretería..." /></div>
@@ -282,6 +363,7 @@ tr.contactado td{opacity:.4}
 </div>
 </div>
 
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleMobileSidebar()"></div>
 <div class="overlay" id="overlay" onclick="cerrarPanel()"></div>
 <div class="panel" id="panel">
   <div class="panel-hdr">
@@ -732,6 +814,7 @@ function goPage(pg, btn) {
 // Toggle sidebar en móvil
 function toggleMobileSidebar() {
   document.querySelector('.sidebar').classList.toggle('mobile-open');
+  document.getElementById('sidebar-overlay').classList.toggle('open');
 }
 
 // Guardar instrucciones de IA para el lead actual (por-chat)
