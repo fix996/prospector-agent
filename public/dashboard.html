@@ -110,6 +110,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
   .btn-primary { padding: 12px; font-size: 14px; min-height: 48px; }
   .pill { padding: 8px 14px; font-size: 12px; min-height: 40px; }
 
+  /* Chips de estilo más compactos en móvil */
+  .estilo-chip { padding: 5px 10px; font-size: 11px; }
+  .estilo-chip .ico { font-size: 12px; }
+
   /* Formularios más grandes */
   .fg input, .fg select { font-size: 14px; padding: 12px; min-height: 48px; }
   .fg label { font-size: 12px; }
@@ -381,6 +385,15 @@ tr.contactado td{opacity:.4}
 .btn-fav-p:hover,.btn-fav-p.on{background:var(--yellow-dim)}
 .btn-cont-p{width:100%;padding:8px;background:transparent;border:1px solid var(--green);border-radius:var(--r);color:var(--green);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;transition:all .15s}
 .btn-cont-p:hover,.btn-cont-p.on{background:var(--green-dim)}
+/* ESTILOS DE MENSAJE - Chips horizontales */
+.estilos-wrap{margin-bottom:10px}
+.estilos-scroll{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin;scrollbar-color:var(--border2) var(--bg3)}
+.estilos-scroll::-webkit-scrollbar{height:3px}
+.estilos-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.estilo-chip{flex:0 0 auto;padding:6px 12px;border-radius:20px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);font-size:11px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.estilo-chip:hover{border-color:var(--accent);color:var(--accent)}
+.estilo-chip.active{background:var(--accent);border-color:var(--accent);color:white}
+.estilo-chip .ico{margin-right:4px}
 .reply-ta{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:10px 11px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;min-height:75px;outline:none}
 .reply-ta:focus{border-color:var(--accent)}
 .reply-ta::placeholder{color:var(--text3)}
@@ -528,6 +541,16 @@ tr.contactado td{opacity:.4}
     </div>
   </div>
   <div class="pbody hidden" id="ptab-mensaje">
+    <div class="lbl">Estilo de mensaje</div>
+    <div class="estilos-wrap">
+      <div class="estilos-scroll">
+        <button class="estilo-chip active" onclick="setEstilo('directo', this)"><span class="ico">🎯</span>Directo</button>
+        <button class="estilo-chip" onclick="setEstilo('empatico', this)"><span class="ico">🤝</span>Empático</button>
+        <button class="estilo-chip" onclick="setEstilo('profesional', this)"><span class="ico">💼</span>Profesional</button>
+        <button class="estilo-chip" onclick="setEstilo('urgente', this)"><span class="ico">⏰</span>Urgente</button>
+        <button class="estilo-chip" onclick="setEstilo('vecino', this)"><span class="ico">🏘️</span>Vecino</button>
+      </div>
+    </div>
     <div class="lbl">Mensaje generado por IA</div>
     <div class="msg-box dim" id="msg-inicial">Hacé click en "Generar" para crear el mensaje...</div>
     <div class="row">
@@ -559,6 +582,7 @@ tr.contactado td{opacity:.4}
 let leadsActuales = [];      // resultados de la última búsqueda
 let leadsFiltrados = [];     // filtrados en la pestaña buscar
 let historial = [];          // todos los leads acumulados (persistentes)
+let estiloMensaje = 'directo'; // estilo seleccionado por defecto
 
 // Claves de localStorage
 const STORAGE_HISTORIAL = 'prospector_historial';
@@ -883,7 +907,14 @@ function getInstruccionesIA() {
   return document.getElementById('ia-instrucciones').value.trim();
 }
 
-// Generar mensaje (igual que dashboard.html)
+// Seleccionar estilo de mensaje
+function setEstilo(estilo, btn) {
+  estiloMensaje = estilo;
+  document.querySelectorAll('.estilo-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// Generar mensaje con estilo
 async function generarMensaje() {
   if (!leadSel) return;
   const box = document.getElementById('msg-inicial');
@@ -896,6 +927,7 @@ async function generarMensaje() {
       body: JSON.stringify({
         lead: leadSel,
         tipo: 'inicial',
+        estilo: estiloMensaje,
         instrucciones_adicionales: getInstruccionesIA()
       })
     });

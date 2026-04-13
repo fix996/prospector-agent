@@ -347,11 +347,57 @@ app.post('/api/buscar', async (req, res) => {
 // POST /api/mensaje
 app.post('/api/mensaje', async (req, res) => {
   try {
-    const { lead, tipo = 'inicial', instrucciones_adicionales } = req.body;
+    const { lead, tipo = 'inicial', estilo = 'directo', instrucciones_adicionales } = req.body;
 
     if (!lead || !lead.nombre) {
       return res.status(400).json({ error: 'Se requiere un lead con al menos el nombre' });
     }
+
+    // Definición de estilos de mensaje
+    const estilosConfig = {
+      directo: {
+        nombre: 'Directo',
+        instruccion: `ESTILO DIRECTO:
+- Sé breve y al grano, andá directo a la demo gratis
+- Usá un tono informal pero respetuoso
+- Mencioná rápidamente el problema (no tienen web / web vieja) y ofrecé la solución
+- Ejemplo: "Hola, vi que no tenés web y te estás perdiendo clientes. Te hago una demo gratis para que veas lo que perdés."`
+      },
+      empatico: {
+        nombre: 'Empático',
+        instruccion: `ESTILO EMPÁTICO:
+- Mostrá comprensión por los desafíos de tener un negocio
+- Usá un tono cálido y cercano
+- Mencioná que entendés lo difícil que es competir hoy y que la demo es sin compromiso
+- Ejemplo: "Hola, sé lo complicado que es mantener un negocio hoy. Muchos clientes me cuentan que no aparecen en Google. Te ofrezco una demo gratis para que veas cómo podrías aparecer."`
+      },
+      profesional: {
+        nombre: 'Profesional',
+        instruccion: `ESTILO PROFESIONAL:
+- Usá un tono más formal pero sin ser rígido
+- Hablá de beneficios concretos y datos
+- Mencioná la demo gratis como una oportunidad de negocio
+- Ejemplo: "Buenas, soy de Mi Negocio Web. Noté que su negocio no aparece en búsquedas de Google en la zona. Le ofrezco una demostración gratuita para evaluar oportunidades de crecimiento."`
+      },
+      urgente: {
+        nombre: 'Urgente',
+        instruccion: `ESTILO URGENTE:
+- Creá sentido de urgencia con la demo gratis (solo hasta el 20 de abril)
+- Usá un tono más directo y apremiante
+- Mencioná que es una oportunidad limitada
+- Ejemplo: "Hola! Solo hasta el 20/4 estamos haciendo demos gratuitas. Vi que no tenés web y te estás perdiendo clientes. Aprovechá antes de que se acabe."`
+      },
+      vecino: {
+        nombre: 'Vecino',
+        instruccion: `ESTILO VECINO:
+- Tono muy local, como si fueras un vecino de la zona
+- Mencioná que conocés el negocio o lo viste cerca
+- Ofrecé la demo como un favor entre vecinos
+- Ejemplo: "Hola! Soy de la zona, paso seguido por tu negocio. Vi que no tenés web y me acordé de vos. Te hago una demo gratis, es como un favor entre vecinos."`
+      }
+    };
+
+    const estiloSeleccionado = estilosConfig[estilo] || estilosConfig.directo;
 
     const systemPrompt = `Sos un chico argentino que trabaja en Mi Negocio Web. Escribís mensajes de WhatsApp que parecen genuinos, como si realmente hubieras buscado ese rubro en esa zona por algún motivo cotidiano y te encontraste con ese negocio.
 
@@ -370,6 +416,8 @@ REGLAS:
 - Si tiene web buena: felicitalo brevemente y ofrecé mejorar el SEO o velocidad
 - Usá SIEMPRE la zona específica del lead, nunca digas "por acá" o "por la zona"
 
+${estiloSeleccionado.instruccion}
+
 EJEMPLO BUENO:
 'Hola! Andaba buscando [rubro] en [zona] y encontré tu Instagram. Vi que no aparecés en Google cuando alguien busca [rubro] en [zona], y eso hace que pierdas clientes que buscan por ahí. Si querés te muestro gratis cómo quedaría tu web, sin compromiso.'` + (instrucciones_adicionales ? `\n\nINSTRUCCIONES ADICIONALES (PRIORIDAD MÁXIMA):\n${instrucciones_adicionales}` : '');
 
@@ -383,6 +431,7 @@ Estado web: ${lead.estado || 'No verificado'}
 ${lead.web_url ? `Web actual: ${lead.web_url}` : ''}
 
 Tipo de mensaje: ${tipo === 'seguimiento' ? 'Seguimiento (ya hubo contacto previo)' : 'Contacto inicial'}
+Estilo: ${estiloSeleccionado.nombre}
 
 ${lead.estado === 'sin_web' ? 'Este negocio NO tiene página web.' : ''}
 ${lead.estado === 'web_vieja' ? 'Este negocio tiene una web vieja o que no es responsive.' : ''}
