@@ -100,6 +100,48 @@ function isSocialOrMapsUrl(url) {
     return true;
   }
 
+  return false;
+}
+
+// Check if URL is a social media PROFILE (not a post)
+function isValidSocialProfile(url) {
+  if (!url) return false;
+  const lower = url.toLowerCase();
+
+  // Instagram: descartar URLs con /p/ (publicaciones), /reels/, /tv/
+  if (lower.includes('instagram.com')) {
+    if (lower.includes('/p/') || lower.includes('/reels/') || lower.includes('/tv/')) {
+      return false;
+    }
+    return true;
+  }
+
+  // Facebook: descartar URLs con /posts/, /videos/, /photos/, /permalink/
+  if (lower.includes('facebook.com')) {
+    if (lower.includes('/posts/') || lower.includes('/videos/') || lower.includes('/photos/') || lower.includes('/permalink/')) {
+      return false;
+    }
+    return true;
+  }
+
+  return false;
+}
+
+// Check if business has at least one valid social media or website
+function hasValidOnlinePresence(business) {
+  if (business.web_url && !isSocialOrMapsUrl(business.web_url)) {
+    return true; // Tiene web real
+  }
+  if (business.instagram_url && isValidSocialProfile(business.instagram_url)) {
+    return true;
+  }
+  if (business.facebook_url && isValidSocialProfile(business.facebook_url)) {
+    return true;
+  }
+  return false;
+}
+  }
+
   // Patrones de URLs que parecen directorios (muchos negocios en una sola URL)
   const directoryPatterns = [
     /negocios/i, /shops/i, /stores/i, /empresas/i, /comercios/i,
@@ -291,7 +333,12 @@ app.post('/api/buscar', async (req, res) => {
     const seenNames = new Set();
 
     // Add Web results first (Instagram profiles - businesses without real website)
+    // Filtrar: solo incluir si tiene perfil válido de red social
     for (const result of webResults) {
+      // Descartar si no tiene presencia online válida (sin redes o es URL de publicación)
+      if (!hasValidOnlinePresence(result)) {
+        continue;
+      }
       const key = (result.nombre + result.zona).toLowerCase();
       if (!seenNames.has(key) && combinedResults.length < cantidad) {
         seenNames.add(key);
@@ -300,8 +347,13 @@ app.post('/api/buscar', async (req, res) => {
     }
 
     // Add Maps results until we reach the desired cantidad
+    // Filtrar: solo incluir si tiene al menos una red social o web
     for (const result of mapsResults) {
       if (combinedResults.length >= cantidad) break;
+      // Descartar si no tiene presencia online válida
+      if (!hasValidOnlinePresence(result)) {
+        continue;
+      }
       const key = (result.nombre + result.zona).toLowerCase();
       if (!seenNames.has(key)) {
         seenNames.add(key);
@@ -309,10 +361,12 @@ app.post('/api/buscar', async (req, res) => {
       }
     }
 
-    console.log(`Total combinados: ${combinedResults.length} negocios`);
+    // Filtrado final: descartar negocios sin ninguna presencia online
+    const filteredResults = combinedResults.filter(r => hasValidOnlinePresence(r));
+    console.log(`Total combinados: ${combinedResults.length} negocios, ${filteredResults.length} después de filtrar sin redes/web`);
 
     // Verify websites in parallel (only for real websites, not social media)
-    const verificationPromises = combinedResults.map(async (result) => {
+    const verificationPromises = filteredResults.map(async (result) => {
       // If no web_url or it's a social media URL, mark as sin_web without fetching
       if (!result.web_url || isSocialOrMapsUrl(result.web_url)) {
         return {
@@ -337,7 +391,7 @@ app.post('/api/buscar', async (req, res) => {
 
     const finalResults = await Promise.all(verificationPromises);
 
-    res.json(finalResults);
+    res.json(filteredResults);
   } catch (error) {
     console.error('Error en /api/buscar:', error.message);
     res.status(500).json({ error: 'Error interno del servidor' });
@@ -353,51 +407,61 @@ app.post('/api/mensaje', async (req, res) => {
       return res.status(400).json({ error: 'Se requiere un lead con al menos el nombre' });
     }
 
-    // Definición de estilos de mensaje
-    const estilosConfig = {
-      directo: {
-        nombre: 'Directo',
-        instruccion: `ESTILO DIRECTO:
-- Sé breve y al grano, andá directo a la demo gratis
-- Usá un tono informal pero respetuoso
-- Mencioná rápidamente el problema (no tienen web / web vieja) y ofrecé la solución
-- Ejemplo: "Hola, vi que no tenés web y te estás perdiendo clientes. Te hago una demo gratis para que veas lo que perdés."`
+    // Definición de 7 tonos de mensaje
+    const tonosConfig = {
+      carismatico: {
+        nombre: 'Carismático',
+        instruccion: `TONO CARISMÁTICO:
+- Sé entusiasta y usá humor suave
+- Transmití energía positiva
+- Ejemplo: "Hola! Qué tal? Andaba buscando [rubro] y boom, apareciste vos. Vi que no tenés web y me dije: 'esto es un delito'. Te hago una demo gratis para que veas lo que te perdés!"`
       },
-      empatico: {
-        nombre: 'Empático',
-        instruccion: `ESTILO EMPÁTICO:
-- Mostrá comprensión por los desafíos de tener un negocio
-- Usá un tono cálido y cercano
-- Mencioná que entendés lo difícil que es competir hoy y que la demo es sin compromiso
-- Ejemplo: "Hola, sé lo complicado que es mantener un negocio hoy. Muchos clientes me cuentan que no aparecen en Google. Te ofrezco una demo gratis para que veas cómo podrías aparecer."`
+      amigable: {
+        nombre: 'Amigable',
+        instruccion: `TONO AMIGABLE:
+- Sé cálido y cercano, como un conocido
+- Usá un tono casual, sin presionar
+- Ejemplo: "Hola, qué tal! Soy de la zona y te encontré por Instagram. Che, vi que no tenés web y me acordé de vos. Si querés te hago una demo gratis, sin compromiso."`
       },
-      profesional: {
-        nombre: 'Profesional',
-        instruccion: `ESTILO PROFESIONAL:
-- Usá un tono más formal pero sin ser rígido
-- Hablá de beneficios concretos y datos
-- Mencioná la demo gratis como una oportunidad de negocio
-- Ejemplo: "Buenas, soy de Mi Negocio Web. Noté que su negocio no aparece en búsquedas de Google en la zona. Le ofrezco una demostración gratuita para evaluar oportunidades de crecimiento."`
+      negociador: {
+        nombre: 'Negociador',
+        instruccion: `TONO NEGOCIADOR:
+- Sé directo, enfocado en el valor económico
+- Mencioná pérdidas/ganancias concretas
+- Ejemplo: "Hola. Sin web estás perdiendo aproximadamente 30-40 clientes por mes que buscan en Google. La demo gratis te muestra exactamente cuánto dinero estás dejando sobre la mesa."`
+      },
+      serio: {
+        nombre: 'Serio',
+        instruccion: `TONO SERIO:
+- Profesional, sin chistes, al punto
+- Directo y respetuoso
+- Ejemplo: "Buenas. Su negocio no aparece en Google ni tiene web profesional. Esto le representa una pérdida de visibilidad y clientes. Ofrezco demostración gratuita para evaluar la situación."`
+      },
+      admirador: {
+        nombre: 'Admirador',
+        instruccion: `TONO ADMIRADOR:
+- Empezá elogiando genuinamente algo del negocio
+- Luego mencioná lo que falta (web)
+- Ejemplo: "Hola! Me encantó lo que hacen en [rubro], se nota la dedicación. Solo les falta una cosa: tener web. Con una demo gratis te muestro cómo podrías llegar a más clientes."`
+      },
+      consultor: {
+        nombre: 'Consultor',
+        instruccion: `TONO CONSULTOR:
+- Presentate como alguien que encontró un problema y tiene la solución
+- Tono de experto que ayuda
+- Ejemplo: "Hola, soy especialista en presencia digital. Buscando [rubro] en [zona] noté que no aparecen en Google. Tengo una solución: demo gratuita para mostrarles cómo solucionarlo."`
       },
       urgente: {
         nombre: 'Urgente',
-        instruccion: `ESTILO URGENTE:
-- Creá sentido de urgencia con la demo gratis (solo hasta el 20 de abril)
-- Usá un tono más directo y apremiante
-- Mencioná que es una oportunidad limitada
-- Ejemplo: "Hola! Solo hasta el 20/4 estamos haciendo demos gratuitas. Vi que no tenés web y te estás perdiendo clientes. Aprovechá antes de que se acabe."`
-      },
-      vecino: {
-        nombre: 'Vecino',
-        instruccion: `ESTILO VECINO:
-- Tono muy local, como si fueras un vecino de la zona
-- Mencioná que conocés el negocio o lo viste cerca
-- Ofrecé la demo como un favor entre vecinos
-- Ejemplo: "Hola! Soy de la zona, paso seguido por tu negocio. Vi que no tenés web y me acordé de vos. Te hago una demo gratis, es como un favor entre vecinos."`
+        instruccion: `TONO URGENTE:
+- Creá sentido de urgencia
+- Mencioná que la demo gratis es solo hasta el 20 de abril
+- Preguntá si les interesa antes de que se acabe
+- Ejemplo: "Hola! ATENCIÓN: solo hasta el 20/4 hacemos demos gratuitas. Vi que no tenés web y te estás perdiendo clientes. ¿Te interesa antes de que se acabe?"`
       }
     };
 
-    const estiloSeleccionado = estilosConfig[estilo] || estilosConfig.directo;
+    const tonoSeleccionado = tonosConfig[estilo] || tonosConfig.carismatico;
 
     const systemPrompt = `Sos un chico argentino que trabaja en Mi Negocio Web. Escribís mensajes de WhatsApp que parecen genuinos, como si realmente hubieras buscado ese rubro en esa zona por algún motivo cotidiano y te encontraste con ese negocio.
 
@@ -416,7 +480,7 @@ REGLAS:
 - Si tiene web buena: felicitalo brevemente y ofrecé mejorar el SEO o velocidad
 - Usá SIEMPRE la zona específica del lead, nunca digas "por acá" o "por la zona"
 
-${estiloSeleccionado.instruccion}
+${tonoSeleccionado.instruccion}
 
 EJEMPLO BUENO:
 'Hola! Andaba buscando [rubro] en [zona] y encontré tu Instagram. Vi que no aparecés en Google cuando alguien busca [rubro] en [zona], y eso hace que pierdas clientes que buscan por ahí. Si querés te muestro gratis cómo quedaría tu web, sin compromiso.'` + (instrucciones_adicionales ? `\n\nINSTRUCCIONES ADICIONALES (PRIORIDAD MÁXIMA):\n${instrucciones_adicionales}` : '');
@@ -431,7 +495,7 @@ Estado web: ${lead.estado || 'No verificado'}
 ${lead.web_url ? `Web actual: ${lead.web_url}` : ''}
 
 Tipo de mensaje: ${tipo === 'seguimiento' ? 'Seguimiento (ya hubo contacto previo)' : 'Contacto inicial'}
-Estilo: ${estiloSeleccionado.nombre}
+Tono: ${tonoSeleccionado.nombre}
 
 ${lead.estado === 'sin_web' ? 'Este negocio NO tiene página web.' : ''}
 ${lead.estado === 'web_vieja' ? 'Este negocio tiene una web vieja o que no es responsive.' : ''}

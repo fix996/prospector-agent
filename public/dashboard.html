@@ -544,11 +544,13 @@ tr.contactado td{opacity:.4}
     <div class="lbl">Estilo de mensaje</div>
     <div class="estilos-wrap">
       <div class="estilos-scroll">
-        <button class="estilo-chip active" onclick="setEstilo('directo', this)"><span class="ico">🎯</span>Directo</button>
-        <button class="estilo-chip" onclick="setEstilo('empatico', this)"><span class="ico">🤝</span>Empático</button>
-        <button class="estilo-chip" onclick="setEstilo('profesional', this)"><span class="ico">💼</span>Profesional</button>
-        <button class="estilo-chip" onclick="setEstilo('urgente', this)"><span class="ico">⏰</span>Urgente</button>
-        <button class="estilo-chip" onclick="setEstilo('vecino', this)"><span class="ico">🏘️</span>Vecino</button>
+        <button class="estilo-chip active" onclick="setEstilo('carismatico', this)"><span class="ico">😄</span>Carismático</button>
+        <button class="estilo-chip" onclick="setEstilo('amigable', this)"><span class="ico">🤝</span>Amigable</button>
+        <button class="estilo-chip" onclick="setEstilo('negociador', this)"><span class="ico">💼</span>Negociador</button>
+        <button class="estilo-chip" onclick="setEstilo('serio', this)"><span class="ico">🎯</span>Serio</button>
+        <button class="estilo-chip" onclick="setEstilo('admirador', this)"><span class="ico">🌟</span>Admirador</button>
+        <button class="estilo-chip" onclick="setEstilo('consultor', this)"><span class="ico">💡</span>Consultor</button>
+        <button class="estilo-chip" onclick="setEstilo('urgente', this)"><span class="ico">🔥</span>Urgente</button>
       </div>
     </div>
     <div class="lbl">Mensaje generado por IA</div>
@@ -582,7 +584,7 @@ tr.contactado td{opacity:.4}
 let leadsActuales = [];      // resultados de la última búsqueda
 let leadsFiltrados = [];     // filtrados en la pestaña buscar
 let historial = [];          // todos los leads acumulados (persistentes)
-let estiloMensaje = 'directo'; // estilo seleccionado por defecto
+let estiloMensaje = 'carismatico'; // tono seleccionado por defecto
 
 // Claves de localStorage
 const STORAGE_HISTORIAL = 'prospector_historial';
