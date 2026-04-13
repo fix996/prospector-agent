@@ -25,83 +25,222 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 .app{display:grid;grid-template-rows:52px 1fr;height:100vh}
 .body{display:grid;grid-template-columns:48px 1fr;height:calc(100vh - 52px);overflow:hidden}
 
-/* RESPONSIVE - Móvil (< 768px) */
+/* ========================================
+   RESPONSIVE - Móvil (< 768px)
+======================================== */
 @media (max-width: 768px) {
   body { font-size: 13px; }
+
+  /* Ocultar sidenav lateral */
   .sidenav { display: none !important; }
+
+  /* Main ocupa todo el ancho */
   .main { grid-template-columns: 1fr !important; }
 
-  /* Sidebar como panel deslizable */
+  /* Header simplificado - ocultar URL y status */
+  .hdr-r .backend-inp,
+  .hdr-r .status-pill { display: none !important; }
+  .hdr-r { gap: 4px; }
+  .logo-text { font-size: 15px; }
+
+  /* Botones móviles */
+  .mobile-menu-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+    background: var(--accent);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+  .mobile-search-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    color: var(--text);
+    cursor: pointer;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Sidebar móvil - 100% ancho */
   .sidebar {
     display: none !important;
     position: fixed;
     top: 52px;
     left: 0;
+    width: 100% !important;
     right: 0;
     bottom: 0;
     z-index: 50;
     background: var(--bg2);
-    padding: 16px !important;
+    padding: 20px !important;
     overflow-y: auto;
   }
   .sidebar.mobile-open { display: block !important; }
 
-  /* Botón móvil */
-  .mobile-search-btn {
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 10px;
-    background: var(--accent);
-    border: none;
-    color: white;
-    font-size: 18px;
-    cursor: pointer;
+  /* Overlay para sidebar */
+  .sidebar-overlay {
+    position: fixed;
+    top: 52px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 49;
+    display: none;
   }
+  .sidebar-overlay.open { display: block; }
 
-  /* Header responsive */
-  .logo-text { font-size: 13px; }
-  .backend-inp { width: 140px; font-size: 10px; }
-  .status-pill { padding: 3px 8px; font-size: 10px; }
-
-  /* Tablas con scroll horizontal */
-  .tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  table { min-width: 650px; }
-
-  /* Panel lateral a pantalla completa */
-  .panel { width: 100% !important; right: -100% !important; }
-  .panel-hdr { padding: 14px; }
-  .panel-name { font-size: 14px; }
-  .pbody { padding: 14px; }
-
-  /* Botones más grandes para touch */
+  /* Botones de touch más grandes */
   .btn-sm { padding: 10px 16px; font-size: 13px; min-height: 44px; }
-  .btn-ico { width: 40px; height: 40px; font-size: 17px; min-height: 40px; }
+  .btn-ico { width: 44px; height: 44px; font-size: 17px; }
   .btn-primary { padding: 12px; font-size: 14px; min-height: 48px; }
-  .pill { padding: 6px 12px; font-size: 12px; min-height: 36px; }
-  .ptab { padding: 12px 6px; font-size: 13px; }
+  .pill { padding: 8px 14px; font-size: 12px; min-height: 40px; }
 
-  /* Formularios */
-  .fg input, .fg select { font-size: 14px; padding: 10px 12px; min-height: 44px; }
+  /* Formularios más grandes */
+  .fg input, .fg select { font-size: 14px; padding: 12px; min-height: 48px; }
   .fg label { font-size: 12px; }
 
-  /* Stats en 1 columna en móviles muy chicos */
-  .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
-  .stat { padding: 12px; }
+  /* Stats en 2 columnas */
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat { padding: 14px; }
   .stat .n { font-size: 20px; }
 
-  /* Tabs de navegación inferiores */
-  .ptabs { position: sticky; top: 0; background: var(--bg2); z-index: 10; }
+  /* === CARDS EN LUGAR DE TABLA === */
+  .tbl-wrap { overflow: visible; }
+  table, thead, tbody, th, td, tr { display: block; }
+  thead { display: none; }
+  tr.rh {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    padding: 14px;
+  }
+  tr.rh:last-child { margin-bottom: 0; }
+  tr.rh.contactado td { opacity: 0.4; }
+  td {
+    padding: 8px 0;
+    border: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  td:first-child {
+    flex-direction: column;
+    align-items: flex-start;
+    padding-top: 0;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+  }
+  .td-name { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .td-meta { font-size: 11px; color: var(--text2); }
+
+  /* Badge de estado destacado */
+  td:nth-child(2) { justify-content: flex-start; }
+  td:nth-child(2) .badge { font-size: 12px; padding: 5px 10px; }
+
+  /* Teléfono, Web, Redes con etiquetas */
+  td:nth-child(3), td:nth-child(4), td:nth-child(5) {
+    font-size: 12px;
+    border-top: 1px solid var(--border);
+  }
+  td:nth-child(3)::before { content: '📞 Teléfono'; color: var(--text3); font-size: 10px; margin-right: 8px; }
+  td:nth-child(4)::before { content: '🌐 Web'; color: var(--text3); font-size: 10px; margin-right: 8px; }
+  td:nth-child(5)::before { content: '📱 Redes'; color: var(--text3); font-size: 10px; margin-right: 8px; }
+
+  /* Botones de acción en fila */
+  td:last-child {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 8px;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+    margin-top: 8px;
+  }
+  td:last-child .btn-ico, td:last-child .btn-sm {
+    flex: 1;
+    max-width: none;
+    justify-content: center;
+  }
+
+  /* Panel como BOTTOM SHEET (90% altura) */
+  .panel {
+    top: auto !important;
+    bottom: -90vh;
+    right: 0 !important;
+    width: 100% !important;
+    height: 90vh;
+    max-height: 90vh;
+    border-left: none;
+    border-top: 1px solid var(--border);
+    border-radius: 16px 16px 0 0;
+    transition: bottom 0.3s cubic-bezier(.4,0,.2,1);
+  }
+  .panel.open { bottom: 0; }
+  .overlay { z-index: 95 !important; }
+  .panel { z-index: 96 !important; }
+  .panel-hdr {
+    border-bottom: 1px solid var(--border);
+    padding: 16px;
+  }
+  .panel-name { font-size: 16px; }
+  .pbody { padding: 16px; }
+
+  /* Tabs del panel más grandes */
+  .ptab { padding: 14px 8px; font-size: 13px; }
+
+  /* === BARRA DE NAVEGACIÓN INFERIOR === */
+  .bottom-nav {
+    display: flex !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 65px;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    z-index: 90;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .bottom-nav-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--text3);
+    font-size: 10px;
+    gap: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .bottom-nav-btn .icon { font-size: 20px; }
+  .bottom-nav-btn:hover { color: var(--text2); }
+  .bottom-nav-btn.active { color: var(--accent); }
+  .bottom-nav-btn.active .icon { transform: scale(1.1); }
+
+  /* Padding para que el contenido no quede tapado */
+  .content-inner { padding-bottom: 80px !important; }
 }
 
-/* Móviles muy chicos (< 400px) */
-@media (max-width: 400px) {
-  .logo-text { display: none; }
-  .backend-inp { width: 100px; }
-  .stats-grid { grid-template-columns: 1fr; }
-  .hdr-r { gap: 4px; }
+/* Desktop - ocultar elementos móviles */
+@media (min-width: 769px) {
+  .mobile-menu-btn { display: none !important; }
+  .mobile-search-btn { display: none !important; }
+  .bottom-nav { display: none !important; }
 }
 
 /* Ajustes para tablets (768px - 1024px) */
@@ -112,30 +251,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 
 /* Ajustes de impresión */
 @media print {
-  .sidenav, .sidebar, .mobile-menu-btn, .mobile-search-btn { display: none !important; }
+  .sidenav, .sidebar, .mobile-menu-btn, .mobile-search-btn, .bottom-nav { display: none !important; }
   .main { grid-template-columns: 1fr !important; }
   .panel { display: none !important; }
   body { height: auto; overflow: visible !important; }
   .app { grid-template-rows: auto !important; }
-}
-.mobile-search-btn { display: none; }
-.mobile-menu-btn { display: none; }
-
-/* Overlay para sidebar móvil */
-.sidebar-overlay {
-  position: fixed;
-  top: 52px;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 49;
-  display: none;
-}
-.sidebar-overlay.open { display: block; }
-
-@media (max-width: 768px) {
-  .mobile-menu-btn { display: flex !important; }
 }
 /* HEADER */
 header{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;gap:16px}
@@ -273,12 +393,12 @@ tr.contactado td{opacity:.4}
 <div class="app">
 <header>
   <div class="logo">
-    <button class="mobile-menu-btn" onclick="toggleMobileSidebar()" style="width:38px;height:38px;font-size:18px;background:var(--accent);border:none;border-radius:8px;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-right:8px">☰</button>
+    <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">☰</button>
     <div class="logo-mark">M</div>
     <div class="logo-text">Mi Negocio Web <em>Prospector</em></div>
   </div>
   <div class="hdr-r">
-    <button class="mobile-search-btn" onclick="toggleMobileSidebar()" style="width:38px;height:38px;font-size:16px;background:var(--bg3);border:1px solid var(--border2)">🔍</button>
+    <button class="mobile-search-btn" onclick="toggleMobileSidebar()">🔍</button>
     <input class="backend-inp" id="backend-url" value="http://localhost:3000" placeholder="URL backend" />
     <div class="status-pill">
       <div class="sdot" id="sdot"></div>
@@ -361,6 +481,26 @@ tr.contactado td{opacity:.4}
 </div>
 </div>
 </div>
+</div>
+
+<!-- Barra de navegación inferior (móvil) -->
+<div class="bottom-nav">
+  <button class="bottom-nav-btn active" onclick="goPage('buscar', this)">
+    <span class="icon">🔍</span>
+    <span>Buscar</span>
+  </button>
+  <button class="bottom-nav-btn" onclick="goPage('favoritos', this)">
+    <span class="icon">⭐</span>
+    <span>Favoritos</span>
+  </button>
+  <button class="bottom-nav-btn" onclick="goPage('historial', this)">
+    <span class="icon">📋</span>
+    <span>Historial</span>
+  </button>
+  <button class="bottom-nav-btn" onclick="goPage('contactados', this)">
+    <span class="icon">✅</span>
+    <span>Contactados</span>
+  </button>
 </div>
 
 <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleMobileSidebar()"></div>
@@ -804,6 +944,7 @@ function copiar(tipo) {
 function goPage(pg, btn) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('page-' + pg).classList.add('active');
   btn.classList.add('active');
   if (pg === 'historial') refrescarTodo();
