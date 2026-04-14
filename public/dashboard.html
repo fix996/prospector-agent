@@ -210,6 +210,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
   /* Tabs del panel más grandes */
   .ptab { padding: 14px 8px; font-size: 13px; }
 
+  /* Plantillas en móvil */
+  .plantillas-grid { gap: 10px; }
+  .plantilla-card { padding: 14px; }
+  .plantilla-nombre { font-size: 14px; }
+  .plantilla-preview { font-size: 12px; -webkit-line-clamp: 3; }
+
   /* === BARRA DE NAVEGACIÓN INFERIOR === */
   .bottom-nav {
     display: flex !important;
@@ -397,6 +403,13 @@ tr.contactado td{opacity:.4}
 .reply-ta{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:10px 11px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;min-height:75px;outline:none}
 .reply-ta:focus{border-color:var(--accent)}
 .reply-ta::placeholder{color:var(--text3)}
+/* PLANTILLAS DE MENSAJES */
+.plantillas-grid{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:12px}
+.plantilla-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px;cursor:pointer;transition:all .15s}
+.plantilla-card:hover{border-color:var(--accent);background:var(--bg4)}
+.plantilla-card.active{border-color:var(--accent);background:var(--accent-dim)}
+.plantilla-nombre{font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text)}
+.plantilla-preview{font-size:11px;color:var(--text2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .row{display:flex;gap:7px}
 .info-grid{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:12px}
 .info-k{color:var(--text3);padding:2px 0}
@@ -529,8 +542,8 @@ tr.contactado td{opacity:.4}
   <div class="ptabs">
     <button class="ptab active" onclick="switchTab('info',this)">Info</button>
     <button class="ptab" onclick="switchTab('mensaje',this)">Primer contacto</button>
+    <button class="ptab" onclick="switchTab('plantillas',this)">Plantillas de mensajes</button>
     <button class="ptab" onclick="switchTab('respuesta',this)">Responder</button>
-    <button class="ptab" onclick="switchTab('guiar-ia',this)">Guiar IA</button>
   </div>
   <div class="pbody" id="ptab-info">
     <div class="lbl">Datos del negocio</div>
@@ -568,14 +581,40 @@ tr.contactado td{opacity:.4}
     <div class="msg-box dim" id="msg-respuesta">La respuesta aparecerá acá...</div>
     <div class="row"><button class="btn-copy" id="btn-copy-r" onclick="copiar('r')">Copiar</button></div>
   </div>
-  <div class="pbody hidden" id="ptab-guiar-ia">
-    <div class="lbl">Configurar IA para este negocio</div>
-    <div class="fg">
-      <label>Instrucciones específicas para este chat</label>
-      <textarea id="ia-instrucciones" class="reply-ta" style="min-height:150px;" placeholder="ej: sé más directo, no menciones precios todavía, el cliente es mayor y formal, enfatizá la demo gratis..."></textarea>
+  <div class="pbody hidden" id="ptab-plantillas">
+    <div class="lbl">Elegí una plantilla de mensaje</div>
+    <div class="plantillas-grid">
+      <div class="plantilla-card" onclick="seleccionarPlantilla('directo')">
+        <div class="plantilla-nombre">📍 Directo</div>
+        <div class="plantilla-preview">"Hola! Andaba buscando [rubro] en [zona] y encontré tu Instagram..."</div>
+      </div>
+      <div class="plantilla-card" onclick="seleccionarPlantilla('amable')">
+        <div class="plantilla-nombre">🤝 Amable</div>
+        <div class="plantilla-preview">"Hola! Cómo estás? Vi tu perfil y me encantó lo que hacés..."</div>
+      </div>
+      <div class="plantilla-card" onclick="seleccionarPlantilla('oportunidad')">
+        <div class="plantilla-nombre">💡 Oportunidad</div>
+        <div class="plantilla-preview">"Hola! Te escribo porque noté algo que puede ayudarte a vender más..."</div>
+      </div>
+      <div class="plantilla-card" onclick="seleccionarPlantilla('urgente')">
+        <div class="plantilla-nombre">🔥 Urgente</div>
+        <div class="plantilla-preview">"Hola! Solo hoy estoy regalando 3 auditorías web gratis..."</div>
+      </div>
+      <div class="plantilla-card" onclick="seleccionarPlantilla('curiosidad')">
+        <div class="plantilla-nombre">❓ Curiosidad</div>
+        <div class="plantilla-preview">"Hola! Una pregunta rápida: ¿sabés que te está perdiendo Google?"</div>
+      </div>
+      <div class="plantilla-card" onclick="seleccionarPlantilla('halago')">
+        <div class="plantilla-nombre">🌟 Halago</div>
+        <div class="plantilla-preview">"Hola! Me encanta lo que hacés con tu negocio, se nota la pasión..."</div>
+      </div>
     </div>
-    <button class="btn-gen" onclick="guardarInstruccionesIA()" style="width:100%">Guardar instrucciones para este negocio</button>
-    <div style="margin-top:10px;font-size:11px;color:var(--text3)">Estas instrucciones se guardan SOLO para este negocio. Cada negocio tiene sus propias instrucciones.</div>
+    <div class="lbl" style="margin-top:16px">Vista previa</div>
+    <div class="msg-box" id="plantilla-vista-previa">Seleccioná una plantilla para ver el mensaje completo...</div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn-copy" onclick="copiarPlantilla()">Copiar</button>
+      <button class="btn-gen" onclick="usarPlantilla()">Usar esta plantilla</button>
+    </div>
   </div>
 </div>
 
@@ -829,9 +868,6 @@ function abrirPanelById(id) {
   document.getElementById('p-nombre').textContent = leadSel.nombre;
   document.getElementById('p-meta').textContent = `${leadSel.rubro} · ${leadSel.zona}`;
 
-  // Cargar instrucciones de IA guardadas para este lead específico
-  cargarInstruccionesIA();
-
   // Construir links de redes
   let redesHtml = '—';
   const redesLinks = [];
@@ -875,7 +911,7 @@ function switchTab(tab, btn) {
   switchTabById(tab);
 }
 function switchTabById(tab) {
-  ['info','mensaje','respuesta','guiar-ia'].forEach(t => {
+  ['info','mensaje','plantillas','respuesta'].forEach(t => {
     document.getElementById('ptab-'+t).className = 'pbody' + (t === tab ? '' : ' hidden');
   });
 }
@@ -904,11 +940,6 @@ async function toggleContPanel() {
   b.className = 'btn-cont-p' + (leadSel.contactado ? ' on' : '');
 }
 
-// Obtener instrucciones adicionales de IA
-function getInstruccionesIA() {
-  return document.getElementById('ia-instrucciones').value.trim();
-}
-
 // Seleccionar estilo de mensaje
 function setEstilo(estilo, btn) {
   estiloMensaje = estilo;
@@ -929,8 +960,7 @@ async function generarMensaje() {
       body: JSON.stringify({
         lead: leadSel,
         tipo: 'inicial',
-        estilo: estiloMensaje,
-        instrucciones_adicionales: getInstruccionesIA()
+        estilo: estiloMensaje
       })
     });
     const data = await res.json();
@@ -955,8 +985,7 @@ async function generarRespuesta() {
       body: JSON.stringify({
         lead: leadSel,
         mensaje_enviado: document.getElementById('msg-inicial').textContent,
-        respuesta_cliente: respCliente,
-        instrucciones_adicionales: getInstruccionesIA()
+        respuesta_cliente: respCliente
       })
     });
     const data = await res.json();
@@ -995,44 +1024,75 @@ function toggleMobileSidebar() {
   document.getElementById('sidebar-overlay').classList.toggle('open');
 }
 
-// Guardar instrucciones de IA para el lead actual (por-chat)
-function guardarInstruccionesIA() {
-  if (!leadSel) {
-    alert('Primero seleccioná un negocio');
-    return;
+// ========== PLANTILLAS DE MENSAJES ==========
+let plantillaSeleccionada = null;
+
+const plantillas = {
+  directo: {
+    nombre: 'Directo',
+    texto: `Hola! Andaba buscando {{rubro}} en {{zona}} y encontré tu Instagram. Vi que no aparecés en Google y eso hace que pierdas clientes. Si querés te muestro gratis cómo quedaría tu web, sin compromiso.`
+  },
+  amable: {
+    nombre: 'Amable',
+    texto: `Hola! Cómo estás? Vi tu perfil y me encantó lo que hacés. Soy [tu nombre] y ayudo a negocios como el tuyo a tener más visibilidad online. Noté que no tenés página web y me gustaría ofrecerte una demo gratis para que veas lo fácil que es conseguir más clientes. ¿Te interesa?`
+  },
+  oportunidad: {
+    nombre: 'Oportunidad',
+    texto: `Hola! Te escribo porque noté algo que puede ayudarte a vender más. Buscando {{rubro}} en {{zona}}, tu Instagram apareció pero en Google no hay nada. Eso significa que hay clientes que te están perdiendo. ¿Te regalo una demo de cómo se vería tu web?`
+  },
+  urgente: {
+    nombre: 'Urgente',
+    texto: `Hola! Solo hoy estoy regalando 3 auditorías web gratis para negocios en {{zona}}. Vi tu Instagram y creo que tu negocio tiene mucho potencial pero está perdiendo visibilidad en Google. ¿Querés que te muestre sin compromiso cómo podrías aparecer primero en las búsquedas?`
+  },
+  curiosidad: {
+    nombre: 'Curiosidad',
+    texto: `Hola! Una pregunta rápida: ¿sabés que te está perdiendo Google? Busqué {{rubro}} en {{zona}} y encontré tu Instagram, pero en Google Maps no aparecés. Cada día que pasa hay clientes que te buscan y no te encuentran. ¿Te muestro gratis cómo solucionar esto?`
+  },
+  halago: {
+    nombre: 'Halago',
+    texto: `Hola! Me encanta lo que hacés con tu negocio, se nota la pasión que le ponés. Por eso me dio pena ver que no tenés presencia en Google. Un negocio tan bueno como el tuyo merece ser encontrado fácilmente. ¿Te regalo una demo de cómo quedaría tu web?`
   }
-  const instrucciones = document.getElementById('ia-instrucciones').value.trim();
+};
 
-  // Guardar instrucciones específicas para este lead
-  const key = 'ia_instrucciones_' + leadSel.id;
-  localStorage.setItem(key, instrucciones);
+function seleccionarPlantilla(tipo) {
+  plantillaSeleccionada = tipo;
+  document.querySelectorAll('.plantilla-card').forEach(card => card.classList.remove('active'));
+  event.currentTarget.classList.add('active');
 
-  // También guardar en el objeto lead para referencia
-  leadSel.ia_instrucciones = instrucciones;
-
-  const btn = document.querySelector('#ptab-guiar-ia .btn-gen');
-  btn.textContent = '✓ Guardado para este negocio';
-  btn.style.background = 'var(--green)';
-  setTimeout(() => {
-    btn.textContent = 'Guardar instrucciones';
-    btn.style.background = '';
-  }, 2000);
+  const plantilla = plantillas[tipo];
+  const vistaPrevia = document.getElementById('plantilla-vista-previa');
+  vistaPrevia.textContent = plantilla.texto;
+  vistaPrevia.className = 'msg-box';
 }
 
-// Cargar instrucciones de IA para el lead actual (por-chat)
-function cargarInstruccionesIA() {
-  if (!leadSel) {
-    document.getElementById('ia-instrucciones').value = '';
+function copiarPlantilla() {
+  if (!plantillaSeleccionada) {
+    alert('Seleccioná una plantilla primero');
     return;
   }
-  // Intentar cargar instrucciones específicas para este lead
-  const key = 'ia_instrucciones_' + leadSel.id;
-  const guardadas = localStorage.getItem(key);
-  if (guardadas) {
-    document.getElementById('ia-instrucciones').value = guardadas;
-  } else {
-    document.getElementById('ia-instrucciones').value = '';
+  const texto = plantillas[plantillaSeleccionada].texto;
+  navigator.clipboard.writeText(texto).then(() => {
+    const btn = event.currentTarget;
+    btn.textContent = '✓ Copiado';
+    btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('ok'); }, 2000);
+  });
+}
+
+function usarPlantilla() {
+  if (!plantillaSeleccionada) {
+    alert('Seleccioná una plantilla primero');
+    return;
   }
+  // Cambiar a la pestaña de mensaje y usar la plantilla como base
+  const btn = document.querySelector('.ptab[onclick*="mensaje"]');
+  switchTab('mensaje', btn);
+
+  // Poner el texto de la plantilla en el msg-inicial
+  const texto = plantillas[plantillaSeleccionada].texto;
+  const box = document.getElementById('msg-inicial');
+  box.textContent = texto;
+  box.className = 'msg-box';
 }
 
 // Health check (sin leads_guardados)
@@ -1064,7 +1124,6 @@ if (savedUrl) document.getElementById('backend-url').value = savedUrl;
 
 // Inicialización
 cargarPersistencia();
-cargarInstruccionesIA();
 checkHealth();
 setInterval(checkHealth, 15000);
 document.getElementById('rubro').addEventListener('keydown', e => { if (e.key === 'Enter') buscar(); });
